@@ -1,0 +1,109 @@
+@using System.Text.Json
+@model List<TechNova.ViewModels.TopProductViewModel>
+@{
+    ViewData["Title"] = "Top Selling Products";
+    var chartLabels = Model.Select(product => product.ProductName).ToArray();
+    var unitsSold = Model.Select(product => product.UnitsSold).ToArray();
+    var revenueThousands = Model.Select(product => Math.Round(product.Revenue / 1000m, 2)).ToArray();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1"><i class="bi bi-trophy me-2"></i>Top selling products</h1>
+        <p class="text-muted mb-0">Paid-order leaderboard ranked by units sold.</p>
+    </div>
+</div>
+
+@if (Model.Count == 0)
+{
+    <section class="card dashboard-card">
+        <div class="card-body text-center text-muted py-5">No paid product sales are available yet.</div>
+    </section>
+}
+else
+{
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <section class="card dashboard-card h-100">
+                <div class="card-header"><h2 class="h6 mb-0">Top products chart</h2></div>
+                <div class="card-body"><canvas id="topProductsChart" height="150" aria-label="Top products chart"></canvas></div>
+            </section>
+        </div>
+        <div class="col-lg-4">
+            <section class="card dashboard-card h-100">
+                <div class="card-header"><h2 class="h6 mb-0">Rankings</h2></div>
+                <div class="list-group list-group-flush">
+                    @for (var index = 0; index < Model.Count; index++)
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center gap-2">
+                            <div class="d-flex align-items-center min-w-0">
+                                <span class="badge @(index < 3 ? "bg-warning text-dark" : "bg-secondary") me-2">#@(index + 1)</span>
+                                <div class="text-truncate">
+                                    <div class="fw-semibold text-truncate">@Model[index].ProductName</div>
+                                    <small class="text-muted">@Model[index].UnitsSold units sold</small>
+                                </div>
+                            </div>
+                            <span class="badge bg-success flex-shrink-0">Rs @Model[index].Revenue.ToString("N0")</span>
+                        </div>
+                    }
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <section class="card dashboard-card mt-4">
+        <div class="card-header"><h2 class="h6 mb-0">Detailed data</h2></div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Rank</th><th>Product</th><th>Units sold</th><th>Revenue</th></tr></thead>
+                <tbody>
+                    @for (var index = 0; index < Model.Count; index++)
+                    {
+                        <tr>
+                            <td><span class="badge @(index < 3 ? "bg-warning text-dark" : "bg-secondary")">#@(index + 1)</span></td>
+                            <td>@Model[index].ProductName</td>
+                            <td>@Model[index].UnitsSold</td>
+                            <td>Rs @Model[index].Revenue.ToString("N0")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    @section Scripts {
+        <script>
+            new Chart(document.getElementById('topProductsChart'), {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(JsonSerializer.Serialize(chartLabels)),
+                    datasets: [
+                        {
+                            label: 'Units sold',
+                            data: @Html.Raw(JsonSerializer.Serialize(unitsSold)),
+                            backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                            borderColor: 'rgba(46, 204, 113, 1)',
+                            borderWidth: 1,
+                            yAxisID: 'units'
+                        },
+                        {
+                            label: 'Revenue (Rs thousands)',
+                            data: @Html.Raw(JsonSerializer.Serialize(revenueThousands)),
+                            backgroundColor: 'rgba(155, 89, 182, 0.5)',
+                            borderColor: 'rgba(155, 89, 182, 1)',
+                            borderWidth: 1,
+                            yAxisID: 'revenue'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        units: { beginAtZero: true, position: 'left' },
+                        revenue: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+        </script>
+    }
+}

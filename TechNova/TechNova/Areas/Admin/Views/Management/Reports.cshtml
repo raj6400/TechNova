@@ -1,0 +1,67 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Sales Report";
+}
+
+<div class="mb-4">
+    <h1 class="h3 mb-1">Sales report</h1>
+    <p class="text-muted mb-0">Paid revenue and order totals for the latest six months.</p>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-4">
+        <div class="card metric-card metric-success h-100"><div class="card-body">
+            <div class="metric-label">All-time paid revenue</div>
+            <div class="metric-value">Rs @Model.TotalRevenue.ToString("N0")</div>
+        </div></div>
+    </div>
+    <div class="col-sm-6 col-xl-4">
+        <div class="card metric-card metric-primary h-100"><div class="card-body">
+            <div class="metric-label">All-time orders</div>
+            <div class="metric-value">@Model.TotalOrders</div>
+        </div></div>
+    </div>
+    <div class="col-sm-6 col-xl-4">
+        <div class="card metric-card metric-info h-100"><div class="card-body">
+            <div class="metric-label">Pending orders</div>
+            <div class="metric-value">@Model.PendingOrders</div>
+        </div></div>
+    </div>
+</div>
+
+<section class="card dashboard-card mb-4">
+    <div class="card-header"><h2 class="h6 mb-0">Monthly sales and orders</h2></div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead><tr><th>Month</th><th>Paid sales</th><th>Orders</th></tr></thead>
+            <tbody>
+                @foreach (var month in Model.MonthlySales)
+                {
+                    <tr><td>@month.Month</td><td>Rs @month.Sales.ToString("N0")</td><td>@month.Orders</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="card dashboard-card">
+    <div class="card-header"><h2 class="h6 mb-0">Top products by revenue</h2></div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead><tr><th>Product</th><th>Units sold</th><th>Revenue</th></tr></thead>
+            <tbody>
+                @if (Model.TopProducts.Count == 0)
+                {
+                    <tr><td class="text-center text-muted py-4" colspan="3">No product sales yet.</td></tr>
+                }
+                else
+                {
+                    @foreach (var product in Model.TopProducts)
+                    {
+                        <tr><td>@product.ProductName</td><td>@product.UnitsSold</td><td>Rs @product.Revenue.ToString("N0")</td></tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

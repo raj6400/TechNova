@@ -1,0 +1,108 @@
+@model IReadOnlyList<TechNova.Models.Brand>
+@{
+    ViewData["Title"] = "Brands";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h3><i class="bi bi-award"></i> Brands</h3>
+        <p class="text-muted mb-0">Manage the brands represented in your store catalog.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Add Brand
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Brand</th>
+                    <th>Country</th>
+                    <th>Website</th>
+                    <th>Products</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr><td colspan="6" class="text-center text-muted py-4">No brands found.</td></tr>
+            }
+            else
+            {
+                @foreach (var brand in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                @if (!string.IsNullOrWhiteSpace(brand.LogoUrl))
+                                {
+                                    <img src="@brand.LogoUrl" alt="@brand.Name logo" class="brand-logo" />
+                                }
+                                else
+                                {
+                                    <span class="brand-logo brand-logo-placeholder"><i class="bi bi-award"></i></span>
+                                }
+                                <div>
+                                    <strong>@brand.Name</strong>
+                                    @if (!string.IsNullOrWhiteSpace(brand.Description))
+                                    {
+                                        <div class="small text-muted text-truncate brand-description">@brand.Description</div>
+                                    }
+                                </div>
+                            </div>
+                        </td>
+                        <td>@(brand.Country ?? "—")</td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(brand.WebsiteUrl))
+                            {
+                                <a href="@brand.WebsiteUrl" target="_blank" rel="noopener noreferrer">Visit site</a>
+                            }
+                            else
+                            {
+                                <span>—</span>
+                            }
+                        </td>
+                        <td><span class="badge text-bg-info">@brand.Products.Count</span></td>
+                        <td>
+                            @if (brand.IsActive)
+                            {
+                                <span class="badge text-bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-secondary">Inactive</span>
+                            }
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <a asp-action="Edit" asp-route-id="@brand.Id" class="btn btn-sm btn-outline-primary" title="Edit @brand.Name">
+                                <i class="bi bi-pencil"></i><span class="visually-hidden"> Edit</span>
+                            </a>
+                            @if (brand.IsActive)
+                            {
+                                <form asp-action="Delete" asp-route-id="@brand.Id" method="post" class="d-inline" onsubmit="return confirm('Deactivate this brand?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Deactivate @brand.Name">
+                                        <i class="bi bi-eye-slash"></i><span class="visually-hidden"> Deactivate</span>
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .brand-logo { width: 42px; height: 42px; border-radius: .5rem; object-fit: contain; background: #f1f3f5; padding: .25rem; }
+        .brand-logo-placeholder { display: inline-flex; align-items: center; justify-content: center; color: #6c757d; font-size: 1.25rem; }
+        .brand-description { max-width: 220px; }
+        @@media (max-width: 576px) { .brand-description { max-width: 140px; } }
+    </style>
+}

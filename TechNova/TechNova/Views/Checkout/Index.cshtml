@@ -1,0 +1,172 @@
+@model TechNova.ViewModels.CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container py-4">
+    <h2 class="mb-4"><i class="bi bi-credit-card"></i> Checkout</h2>
+
+    <form asp-action="Process" method="post">
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-truck"></i> Shipping Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label"></label>
+                                <input asp-for="FirstName" class="form-control" autocomplete="given-name" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label"></label>
+                                <input asp-for="LastName" class="form-control" autocomplete="family-name" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Email" class="form-label"></label>
+                                <input asp-for="Email" class="form-control" type="email" autocomplete="email" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Phone" class="form-label"></label>
+                                <input asp-for="Phone" class="form-control" type="tel" autocomplete="tel" />
+                                <span asp-validation-for="Phone" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label"></label>
+                            <input asp-for="Address" class="form-control" autocomplete="address-line1" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Address2" class="form-label"></label>
+                            <input asp-for="Address2" class="form-control" autocomplete="address-line2" />
+                            <span asp-validation-for="Address2" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="City" class="form-label"></label>
+                                <input asp-for="City" class="form-control" autocomplete="address-level2" />
+                                <span asp-validation-for="City" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="State" class="form-label"></label>
+                                <input asp-for="State" class="form-control" autocomplete="address-level1" />
+                                <span asp-validation-for="State" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PostalCode" class="form-label"></label>
+                                <input asp-for="PostalCode" class="form-control" autocomplete="postal-code" />
+                                <span asp-validation-for="PostalCode" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Country" class="form-label"></label>
+                                <input asp-for="Country" class="form-control" autocomplete="country-name" />
+                                <span asp-validation-for="Country" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="OrderNotes" class="form-label"></label>
+                            <textarea asp-for="OrderNotes" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="OrderNotes" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-cash"></i> Payment Method</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check border rounded p-3">
+                            <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="CashOnDelivery" id="paymentCod" />
+                            <label class="form-check-label" for="paymentCod">Cash on Delivery</label>
+                        </div>
+                        @if (ViewBag.StripeEnabled == true)
+                        {
+                            <div class="form-check border rounded p-3 mt-2">
+                                <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="Stripe" id="paymentStripe" />
+                                <label class="form-check-label" for="paymentStripe">Credit or debit card (Stripe)</label>
+                            </div>
+                        }
+                        <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                        <div id="paymentNote" class="form-text mt-2">Pay when your order arrives.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var item in Model.Cart.CartItems)
+                        {
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>@item.ProductName x @item.Quantity</span>
+                                <span>₹ @item.TotalPrice.ToString("N0")</span>
+                            </div>
+                        }
+                        <hr />
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <span>₹ @Model.Cart.CartTotal.ToString("N0")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax (18% GST)</span>
+                            <span>₹ @Model.Cart.Tax.ToString("N0")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping</span>
+                            <span>@(Model.Cart.Shipping == 0 ? "FREE" : $"₹ {Model.Cart.Shipping:N0}")</span>
+                        </div>
+                        <hr />
+                        <div class="d-flex justify-content-between mb-3">
+                            <h5 class="mb-0">Total</h5>
+                            <h5 class="mb-0 text-primary">₹ @Model.Cart.GrandTotal.ToString("N0")</h5>
+                        </div>
+                        <button id="submitOrder" type="submit" class="btn btn-primary w-100 btn-lg">
+                            <i class="bi bi-lock"></i> Place Order
+                        </button>
+                        <div class="text-center mt-3">
+                            <small class="text-muted"><i class="bi bi-shield-check"></i> Card details are handled securely by Stripe</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelectorAll('input[name="PaymentMethod"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                var isStripe = this.value === 'Stripe';
+                document.getElementById('submitOrder').innerHTML = isStripe
+                    ? '<i class="bi bi-lock"></i> Continue to secure payment'
+                    : '<i class="bi bi-lock"></i> Place Order';
+                document.getElementById('paymentNote').textContent = isStripe
+                    ? 'You will be redirected to Stripe to complete your payment.'
+                    : 'Pay when your order arrives.';
+            });
+        });
+        var selectedPaymentMethod = document.querySelector('input[name="PaymentMethod"]:checked');
+        if (selectedPaymentMethod) {
+            selectedPaymentMethod.dispatchEvent(new Event('change'));
+        }
+    </script>
+}

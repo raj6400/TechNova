@@ -1,0 +1,185 @@
+@model Order
+@{
+    ViewData["Title"] = $"Order {Model.OrderNumber}";
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h2 class="mb-1">Order Details</h2>
+            <span class="text-muted">Order #@Model.OrderNumber</span>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="DownloadInvoice" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="bi bi-file-earmark-pdf"></i> Download Invoice
+            </a>
+            <a asp-action="Orders" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to My Orders
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="card shadow-sm mb-4">
+                <div class="list-group list-group-flush">
+                    <a asp-action="Profile" class="list-group-item list-group-item-action">
+                        <i class="bi bi-person"></i> Profile
+                    </a>
+                    <a asp-action="Orders" class="list-group-item list-group-item-action active" aria-current="page">
+                        <i class="bi bi-bag"></i> My Orders
+                    </a>
+                    <a asp-action="Wishlist" class="list-group-item list-group-item-action">
+                        <i class="bi bi-heart"></i> Wishlist
+                    </a>
+                    <a asp-action="ChangePassword" class="list-group-item list-group-item-action">
+                        <i class="bi bi-key"></i> Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-receipt"></i> Order Items</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Unit Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                @if (!string.IsNullOrWhiteSpace(item.Product?.MainImageUrl))
+                                                {
+                                                    <img src="@item.Product.MainImageUrl" alt="@item.Product.Name" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;" />
+                                                }
+                                                <div>
+                                                    <h6 class="mb-0">@(item.Product?.Name ?? "Product unavailable")</h6>
+                                                    @if (!string.IsNullOrWhiteSpace(item.Product?.Model))
+                                                    {
+                                                        <small class="text-muted">@item.Product.Model</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>RS @item.UnitPrice.ToString("N0")</td>
+                                        <td>@item.Quantity</td>
+                                        <td>RS @item.TotalPrice.ToString("N0")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Shipping Address</h5>
+                </div>
+                <div class="card-body">
+                    <div>@Model.CustomerFirstName @Model.CustomerLastName</div>
+                    <div>@Model.ShippingAddress</div>
+                    @if (!string.IsNullOrWhiteSpace(Model.ShippingAddress2))
+                    {
+                        <div>@Model.ShippingAddress2</div>
+                    }
+                    <div>
+                        @Model.ShippingCity
+                        @if (!string.IsNullOrWhiteSpace(Model.ShippingState))
+                        {
+                            <span>, @Model.ShippingState</span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.ShippingPostalCode))
+                        {
+                            <span> @Model.ShippingPostalCode</span>
+                        }
+                    </div>
+                    <div>@Model.ShippingCountry</div>
+                    @if (!string.IsNullOrWhiteSpace(Model.ShippingPhone))
+                    {
+                        <div>@Model.ShippingPhone</div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Order date</span>
+                        <span>@Model.OrderDate.ToString("MMM dd, yyyy")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Order status</span>
+                        <span class="badge @(Model.Status switch {
+                            OrderStatus.Pending => "bg-warning text-dark",
+                            OrderStatus.Processing => "bg-info text-dark",
+                            OrderStatus.Shipped => "bg-primary",
+                            OrderStatus.Delivered => "bg-success",
+                            OrderStatus.Cancelled => "bg-danger",
+                            OrderStatus.Refunded => "bg-secondary",
+                            _ => "bg-secondary"
+                        })">@Model.Status</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Payment</span>
+                        <span>@Model.PaymentStatus</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Payment method</span>
+                        <span>@Model.PaymentMethod</span>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <span>RS @Model.Subtotal.ToString("N0")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Shipping</span>
+                        <span>RS @Model.ShippingCost.ToString("N0")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tax</span>
+                        <span>RS @Model.TaxAmount.ToString("N0")</span>
+                    </div>
+                    @if (Model.DiscountAmount > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Discount</span>
+                            <span>- RS @Model.DiscountAmount.ToString("N0")</span>
+                        </div>
+                    }
+                    <hr />
+                    <div class="d-flex justify-content-between fw-bold">
+                        <span>Total</span>
+                        <span>RS @Model.TotalAmount.ToString("N0")</span>
+                    </div>
+                    <a asp-action="TrackOrder" asp-route-id="@Model.Id" class="btn btn-outline-info w-100 mt-3">
+                        <i class="bi bi-truck"></i> Track Order
+                    </a>
+                </div>
+            </div>
+        </div>
+            </div>
+        </div>
+    </div>
+</div>

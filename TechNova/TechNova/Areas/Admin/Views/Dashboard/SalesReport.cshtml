@@ -1,0 +1,108 @@
+@using System.Text.Json
+@model TechNova.Services.SalesReportViewModel
+@{
+    ViewData["Title"] = "Sales Report";
+    var chartLabels = Model.DailySales.Select(day => day.Date.ToString("MMM dd")).ToArray();
+    var chartValues = Model.DailySales.Select(day => day.Sales).ToArray();
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="h3 mb-1"><i class="bi bi-graph-up me-2"></i>Sales report</h1>
+        <p class="text-muted mb-0">Paid revenue and order activity for the selected period.</p>
+    </div>
+    <form method="get" class="d-flex flex-wrap gap-2">
+        <label class="visually-hidden" for="startDate">Start date</label>
+        <input id="startDate" type="date" name="startDate" class="form-control form-control-sm" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+        <label class="visually-hidden" for="endDate">End date</label>
+        <input id="endDate" type="date" name="endDate" class="form-control form-control-sm" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-search me-1"></i>Apply</button>
+    </form>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card metric-card metric-success h-100"><div class="card-body">
+            <div class="metric-label">Paid sales</div>
+            <div class="metric-value">Rs @Model.TotalSales.ToString("N0")</div>
+        </div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card metric-card metric-info h-100"><div class="card-body">
+            <div class="metric-label">Total orders</div>
+            <div class="metric-value">@Model.TotalOrders</div>
+        </div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card metric-card metric-primary h-100"><div class="card-body">
+            <div class="metric-label">Average order value</div>
+            <div class="metric-value">Rs @Model.AverageOrderValue.ToString("N0")</div>
+        </div></div>
+    </div>
+</div>
+
+<section class="card dashboard-card mb-4">
+    <div class="card-header"><h2 class="h6 mb-0">Daily sales</h2></div>
+    <div class="card-body">
+        @if (Model.DailySales.Count == 0)
+        {
+            <p class="text-muted mb-0">No orders were found for this period.</p>
+        }
+        else
+        {
+            <canvas id="dailySalesChart" height="110" aria-label="Daily sales chart"></canvas>
+        }
+    </div>
+</section>
+
+<section class="card dashboard-card">
+    <div class="card-header"><h2 class="h6 mb-0">Daily breakdown</h2></div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead><tr><th>Date</th><th>Orders</th><th>Paid sales</th></tr></thead>
+            <tbody>
+                @if (Model.DailySales.Count == 0)
+                {
+                    <tr><td class="text-center text-muted py-4" colspan="3">No sales data available.</td></tr>
+                }
+                else
+                {
+                    @foreach (var day in Model.DailySales)
+                    {
+                        <tr>
+                            <td>@day.Date.ToString("MMM dd, yyyy")</td>
+                            <td>@day.OrderCount</td>
+                            <td>Rs @day.Sales.ToString("N0")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+@if (Model.DailySales.Count > 0)
+{
+    @section Scripts {
+        <script>
+            const dailySalesCanvas = document.getElementById('dailySalesChart');
+            new Chart(dailySalesCanvas, {
+                type: 'bar',
+                data: {
+                    labels: @Html.Raw(JsonSerializer.Serialize(chartLabels)),
+                    datasets: [{
+                        label: 'Paid sales (Rs)',
+                        data: @Html.Raw(JsonSerializer.Serialize(chartValues)),
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        </script>
+    }
+}

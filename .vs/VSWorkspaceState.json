@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\TechNova",
+    "\\TechNova\\TechNova",
+    "\\TechNova\\TechNova\\Controllers",
+    "\\TechNova\\TechNova\\Services",
+    "\\TechNova\\TechNova\\Views",
+    "\\TechNova\\TechNova\\Views\\Account",
+    "\\TechNova\\TechNova\\Views\\Shared"
+  ],
+  "SelectedNode": "\\TechNova\\TechNova\\Views\\Shared\\_HomeSlider.cshtml",
+  "PreviewInSolutionExplorer": false
+}

@@ -1,0 +1,255 @@
+@model TechNova.Models.Product
+
+@{
+    var imageUrl = string.IsNullOrWhiteSpace(Model.MainImageUrl)
+        ? "/images/products/placeholder.jpg"
+        : Model.MainImageUrl;
+}
+
+<div class="card h-100 product-card shadow-sm">
+
+    <!-- PRODUCT IMAGE -->
+    <div class="position-relative product-image-container">
+
+        <a asp-controller="Products"
+           asp-action="Details"
+           asp-route-id="@Model.Id"
+           class="product-image-link">
+
+            <img src="@imageUrl"
+                 class="card-img-top product-image"
+                 alt="@Model.Name"
+                 loading="lazy"
+                 onerror="this.onerror=null;this.src='/images/products/placeholder.jpg';" />
+
+        </a>
+
+        <!-- Discount -->
+        @if (Model.DiscountPercentage > 0)
+        {
+            <span class="badge bg-danger position-absolute top-0 end-0 m-2">
+                -@Model.DiscountPercentage%
+            </span>
+        }
+
+        <!-- New Arrival -->
+        @if (Model.IsNewArrival)
+        {
+            <span class="badge bg-success position-absolute top-0 start-0 m-2">
+                New
+            </span>
+        }
+
+        <!-- Compare -->
+        <button type="button"
+                class="btn btn-light btn-sm position-absolute bottom-0 start-0 m-2 compare-product-btn"
+                onclick="addToCompare(@Model.Id)"
+                aria-label="Compare @Model.Name">
+
+            <i class="bi bi-arrow-left-right"></i>
+
+        </button>
+
+        <!-- Wishlist -->
+        <button type="button"
+                class="btn btn-light btn-sm position-absolute bottom-0 end-0 m-2 wishlist-btn"
+                data-product-id="@Model.Id"
+                data-in-wishlist="false"
+                aria-label="Add @Model.Name to wishlist">
+
+            <i class="bi bi-heart"></i>
+
+        </button>
+
+    </div>
+
+    <!-- PRODUCT DETAILS -->
+    <div class="card-body d-flex flex-column">
+
+        <!-- Brand -->
+        <p class="text-muted mb-1 small">
+            @(Model.Brand?.Name ?? "TechNova")
+        </p>
+
+        <!-- Product Name -->
+        <h6 class="card-title">
+
+            <a asp-controller="Products"
+               asp-action="Details"
+               asp-route-id="@Model.Id"
+               class="text-decoration-none text-dark product-title">
+
+                @Model.Name
+
+            </a>
+
+        </h6>
+
+        <!-- Model -->
+        @if (!string.IsNullOrWhiteSpace(Model.Model))
+        {
+            <small class="text-muted mb-2">
+                @Model.Model
+            </small>
+        }
+
+        <!-- Rating -->
+        <div class="mb-2">
+
+            @if (Model.AverageRating > 0)
+            {
+                <span class="text-warning">
+
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        if (i <= Model.AverageRating)
+                        {
+                            <i class="bi bi-star-fill"></i>
+                        }
+                        else if (i - 0.5 <= Model.AverageRating)
+                        {
+                            <i class="bi bi-star-half"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-star"></i>
+                        }
+                    }
+
+                </span>
+
+                <small class="text-muted">
+                    (@Model.ReviewCount reviews)
+                </small>
+            }
+            else
+            {
+                <small class="text-muted">
+                    No reviews yet
+                </small>
+            }
+
+        </div>
+
+        <!-- PRICE AND CART -->
+        <div class="mt-auto">
+
+            <div class="d-flex align-items-center justify-content-between gap-2">
+
+                <div>
+
+                    @if (Model.OriginalPrice > Model.SalePrice)
+                    {
+                        <del class="text-muted small">
+                            ₹ @Model.OriginalPrice.ToString("N0")
+                        </del>
+                    }
+
+                    <h5 class="text-primary mb-0">
+                        ₹ @Model.SalePrice.ToString("N0")
+                    </h5>
+
+                </div>
+
+                <!-- Add to Cart -->
+                <form asp-controller="ShoppingCart"
+                      asp-action="AddToCart"
+                      method="post"
+                      class="d-inline">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="productId"
+                           value="@Model.Id" />
+
+                    <button type="submit"
+                            class="btn btn-primary btn-sm"
+                            disabled="@(Model.StockQuantity <= 0)">
+
+                        <i class="bi bi-cart-plus"></i>
+                        Add
+
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- STOCK STATUS -->
+            @if (Model.StockQuantity <= 5 && Model.StockQuantity > 0)
+            {
+                <small class="text-warning d-block mt-2">
+
+                    <i class="bi bi-exclamation-circle"></i>
+                    Only @Model.StockQuantity left
+
+                </small>
+            }
+            else if (Model.StockQuantity == 0)
+            {
+                <small class="text-danger d-block mt-2">
+
+                    <i class="bi bi-x-circle"></i>
+                    Out of stock
+
+                </small>
+            }
+            else
+            {
+                <small class="text-success d-block mt-2">
+                    <i class="bi bi-check-circle"></i>
+                    In Stock
+                </small>
+            }
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+    .product-card {
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, .12) !important;
+        }
+
+    .product-image-container {
+        height: 250px;
+        background: #fff;
+        overflow: hidden;
+    }
+
+    .product-image-link {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    .product-image {
+        width: 100%;
+        height: 250px;
+        object-fit: contain;
+        padding: 10px;
+        transition: transform .3s ease;
+    }
+
+    .product-card:hover .product-image {
+        transform: scale(1.04);
+    }
+
+    .product-title:hover {
+        color: #0d6efd !important;
+    }
+
+    .product-card .btn {
+        white-space: nowrap;
+    }
+</style>

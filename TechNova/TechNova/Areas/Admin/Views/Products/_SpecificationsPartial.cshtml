@@ -1,0 +1,84 @@
+<!-- INLINE SPECIFICATIONS SECTION -->
+<!-- Specifications Section - Create Mode -->
+<div class="col-12 mt-4">
+    <div class="card border-success shadow-sm">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-list me-2"></i>Product Specifications</span>
+            <span class="badge bg-light text-success" id="specCountBadge">0 specs</span>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Specifications will be added after the product is created. You can add them here to prepare the list.
+            </div>
+
+            <!-- Add Spec Form (Create Mode - Local Storage Mapping) -->
+            <div class="row g-2 mb-3">
+                <div class="col-md-3">
+                    <input type="text" id="newSpecGroup" class="form-control" placeholder="Group (e.g., Display)" list="groupSuggestions" />
+                </div>
+                <div class="col-md-3">
+                    <input type="text" id="newSpecName" class="form-control" placeholder="Name (e.g., Screen Size)" />
+                </div>
+                <div class="col-md-3">
+                    <input type="text" id="newSpecValue" class="form-control" placeholder="Value (e.g., 6.5 inches)" />
+                </div>
+                <div class="col-md-3">
+                    <button type="button" class="btn btn-success w-100" onclick="addTempSpecification()">
+                        <i class="fas fa-plus me-1"></i>Add to List
+                    </button>
+                </div>
+            </div>
+
+            <datalist id="groupSuggestions">
+                <option value="General" />
+                <option value="Display" />
+                <option value="Camera" />
+                <option value="Battery" />
+                <option value="Performance" />
+                <option value="Storage" />
+                <option value="Connectivity" />
+                <option value="Design" />
+                <option value="Audio" />
+            </datalist>
+
+            <!-- Quick Add Buttons -->
+            <div class="mb-3">
+                <small class="text-muted">Quick Add:</small>
+                <div class="d-flex flex-wrap gap-1 mt-1">
+                    <button type="button" class="btn btn-xs btn-outline-secondary btn-sm" onclick="quickAddTemp('RAM', '6GB', 'Performance')">RAM 6GB</button>
+                    <button type="button" class="btn btn-xs btn-outline-secondary btn-sm" onclick="quickAddTemp('Storage', '128GB', 'Storage')">128GB</button>
+                    <button type="button" class="btn btn-xs btn-outline-secondary btn-sm" onclick="quickAddTemp('Battery', '5000 mAh', 'Battery')">5000mAh</button>
+                    <button type="button" class="btn btn-xs btn-outline-secondary btn-sm" onclick="quickAddTemp('Screen Size', '6.5 inches', 'Display')">6.5"</button>
+                    <button type="button" class="btn btn-xs btn-outline-secondary btn-sm" onclick="quickAddTemp('Processor', 'Snapdragon 888', 'Performance')">SD 888</button>
+                    <button type="button" class="btn btn-xs btn-outline-secondary btn-sm" onclick="quickAddTemp('Main Camera', '108 MP', 'Camera')">108MP</button>
+                </div>
+            </div>
+
+            <!-- Temporary Specs Table -->
+            <div class="table-responsive">
+                <table class="table table-sm table-hover" id="tempSpecsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Group</th>
+                            <th>Name</th>
+                            <th>Value</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tempSpecsBody">
+                        <!-- Temp specs compiled here dynamically -->
+                    </tbody>
+                </table>
+                <div id="noTempSpecs" class="text-center text-muted py-3">
+                    <i class="fas fa-clipboard-list fa-2x mb-2"></i>
+                    <p class="mb-0">No specifications added yet. Add them above.</p>
+                </div>
+            </div>
+
+            <!-- Hidden input used to store dynamic fields serialized into JSON arrays -->
+            <input type="hidden" name="TempSpecifications" id="TempSpecifications" />
+        </div>
+    </div>
+</div>
+<!-- END SPECIFICATIONS SECTION -->

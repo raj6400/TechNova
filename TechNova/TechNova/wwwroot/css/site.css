@@ -1,0 +1,155 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+
+.star-rating {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
+.star-rating input {
+  position: absolute;
+  opacity: 0;
+}
+
+.star-rating label {
+  color: #adb5bd;
+  cursor: pointer;
+  font-size: 1.5rem;
+  margin-right: 0.15rem;
+}
+
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  color: #ffc107;
+}
+
+.star-rating input:focus-visible + label {
+  outline: 2px solid #258cfb;
+  outline-offset: 2px;
+}
+
+.compare-table th,
+.compare-table td {
+  min-width: 240px;
+  vertical-align: middle;
+}
+
+.compare-table .compare-feature-column {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  min-width: 180px;
+  background: #f8f9fa;
+}
+
+.compare-table thead .compare-feature-column {
+  z-index: 3;
+}
+
+.compare-product-heading {
+  position: relative;
+  padding: 2rem 0.5rem 0.5rem;
+}
+
+.compare-remove {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.compare-product-image {
+  width: 100%;
+  height: 160px;
+  object-fit: contain;
+}
+
+.compare-sidebar {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 1090;
+  display: none;
+  width: min(290px, calc(100vw - 40px));
+  padding: 18px;
+  border: 1px solid #f1f1f1;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  animation: compare-slide-up 0.3s ease;
+}
+
+.compare-header {
+  margin-bottom: 15px;
+}
+
+.compare-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.compare-now-btn {
+  flex: 1;
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 10px;
+}
+
+.clear-btn {
+  width: 50px;
+  border-radius: 12px;
+}
+
+@keyframes compare-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .compare-sidebar {
+    left: 12px;
+    bottom: 12px;
+    width: calc(100vw - 24px);
+  }
+
+  .compare-table .compare-feature-column {
+    min-width: 140px;
+  }
+}

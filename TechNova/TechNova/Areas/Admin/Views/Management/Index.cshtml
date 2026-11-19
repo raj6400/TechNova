@@ -1,0 +1,74 @@
+@model AdminListViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h1 class="h3 mb-1">@Model.Title</h1>
+        <p class="text-muted mb-0">@Model.Description</p>
+    </div>
+    <span class="badge text-bg-secondary">@Model.TotalCount records</span>
+</div>
+
+<section class="card dashboard-card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    @foreach (var header in Model.Headers)
+                    {
+                        <th>@header</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Rows.Count == 0)
+                {
+                    <tr><td class="text-center text-muted py-4" colspan="@Model.Headers.Count">No records to display.</td></tr>
+                }
+                else
+                {
+                    @foreach (var row in Model.Rows)
+                    {
+                        <tr>
+                            @foreach (var cell in row.Cells)
+                            {
+                                <td>
+                                    @if (cell == "Active")
+                                    {
+                                        <span class="badge text-bg-success">@cell</span>
+                                    }
+                                    else if (cell == "Inactive")
+                                    {
+                                        <span class="badge text-bg-secondary">@cell</span>
+                                    }
+                                    else if (cell == "Pending")
+                                    {
+                                        <span class="badge text-bg-warning">@cell</span>
+                                    }
+                                    else if (cell == "Paid" || cell == "Delivered")
+                                    {
+                                        <span class="badge text-bg-success">@cell</span>
+                                    }
+                                    else if (cell == "Cancelled" || cell == "Failed" || cell == "Refunded")
+                                    {
+                                        <span class="badge text-bg-danger">@cell</span>
+                                    }
+                                    else
+                                    {
+                                        @cell
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.TotalCount > Model.Rows.Count)
+    {
+        <div class="card-footer text-muted small">Showing the latest @Model.Rows.Count of @Model.TotalCount records.</div>
+    }
+</section>

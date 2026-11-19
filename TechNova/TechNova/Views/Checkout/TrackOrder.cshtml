@@ -1,0 +1,247 @@
+@model Order?
+@{
+    ViewData["Title"] = "Track Your Order";
+    var statusSteps = new List<(OrderStatus Status, string Icon, string Label, string Description)>
+    {
+        (OrderStatus.Pending, "bi-clock", "Order placed", "Your order has been received"),
+        (OrderStatus.Processing, "bi-gear", "Processing", "We are preparing your items"),
+        (OrderStatus.Shipped, "bi-truck", "Shipped", "Your order is on the way"),
+        (OrderStatus.Delivered, "bi-box-seam", "Delivered", "Package has arrived")
+    };
+
+    var currentStage = Model?.Status switch
+    {
+        OrderStatus.Pending => 0,
+        OrderStatus.Processing => 1,
+        OrderStatus.Shipped => 2,
+        OrderStatus.Delivered => 3,
+        _ => -1
+    };
+    var isTerminalException = Model?.Status is OrderStatus.Cancelled or OrderStatus.Refunded;
+}
+
+<style>
+    .tracking-timeline { position: relative; padding: 1.5rem 0; }
+    .tracking-timeline::before { content: ''; position: absolute; top: 3.25rem; left: 8%; right: 8%; height: 4px; background: #e9ecef; }
+    .timeline-step { position: relative; z-index: 1; text-align: center; }
+    .timeline-icon { width: 3.5rem; height: 3.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto .75rem; background: #fff; border: 3px solid #dee2e6; color: #6c757d; }
+    .timeline-step.completed .timeline-icon { background: #0d6efd; border-color: #0d6efd; color: #fff; }
+    .timeline-step.active .timeline-icon { border-color: #0d6efd; color: #0d6efd; box-shadow: 0 0 0 4px rgba(13, 110, 253, .15); }
+    .timeline-label { font-weight: 600; color: #6c757d; }
+    .timeline-step.completed .timeline-label, .timeline-step.active .timeline-label { color: #212529; }
+    .timeline-desc, .timeline-date { font-size: .8rem; color: #6c757d; }
+    .timeline-date { color: #0d6efd; margin-top: .25rem; }
+    .status-exception { border-left: 5px solid #dc3545; }
+    .status-refunded { border-left: 5px solid #6c757d; }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+            <div class="text-center mb-4">
+                <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-subtle text-primary mb-3" style="width: 64px; height: 64px;">
+                    <i class="bi bi-box-seam fs-2"></i>
+                </span>
+                <h1 class="h2 mb-2">Track your order</h1>
+                <p class="text-muted mb-0">Enter your order number and checkout email to see the latest update.</p>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <form asp-controller="Checkout" asp-action="TrackOrder" method="post">
+                        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-5">
+                                <label for="orderNumber" class="form-label fw-semibold">Order number</label>
+                                <input id="orderNumber" name="orderNumber" type="text" class="form-control form-control-lg"
+                                       placeholder="ORD-20260531-ABC12345" value="@ViewData["OrderNumber"]" required autocomplete="off" />
+                            </div>
+                            <div class="col-md-5">
+                                <label for="email" class="form-label fw-semibold">Checkout email</label>
+                                <input id="email" name="email" type="email" class="form-control form-control-lg"
+                                       placeholder="you@example.com" value="@ViewData["Email"]" required autocomplete="email" />
+                            </div>
+                            <div class="col-md-2 d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-search me-1"></i> Track
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-text mt-3">
+                            <i class="bi bi-shield-lock me-1"></i> We use the checkout email to verify the order before showing its details.
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if (Model is not null)
+            {
+                var statusClass = Model.Status switch
+                {
+                    OrderStatus.Pending => "bg-warning text-dark",
+                    OrderStatus.Processing => "bg-info text-dark",
+                    OrderStatus.Shipped => "bg-primary",
+                    OrderStatus.Delivered => "bg-success",
+                    OrderStatus.Cancelled => "bg-danger",
+                    OrderStatus.Refunded => "bg-secondary",
+                    _ => "bg-secondary"
+                };
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2 p-4">
+                        <div>
+                            <div class="text-muted small text-uppercase fw-semibold">Order</div>
+                            <h2 class="h5 mb-0">#@Model.OrderNumber</h2>
+                        </div>
+                        <span class="badge @statusClass fs-6 px-3 py-2">@Model.Status</span>
+                    </div>
+                    <div class="card-body p-4">
+                        @if (isTerminalException)
+                        {
+                            <div class="alert @(Model.Status == OrderStatus.Refunded ? "alert-secondary" : "alert-danger") mb-4" role="alert">
+                                <i class="bi @(Model.Status == OrderStatus.Refunded ? "bi-arrow-counterclockwise" : "bi-x-octagon") me-2"></i>
+                                This order is @Model.Status.ToString().ToLowerInvariant(). Shipment progress is no longer active.
+                            </div>
+                        }
+                        else if (currentStage >= 0)
+                        {
+                            <div class="tracking-timeline mb-4">
+                                <div class="row g-0">
+                                @for (var index = 0; index < statusSteps.Count; index++)
+                                {
+                                    var step = statusSteps[index];
+                                    var isCompleted = index < currentStage;
+                                    var isCurrent = index == currentStage;
+                                    <div class="col timeline-step @(isCompleted ? "completed" : "") @(isCurrent ? "active" : "")">
+                                        <div class="timeline-icon"><i class="bi @step.Icon"></i></div>
+                                        <div class="timeline-label">@step.Label</div>
+                                        <div class="timeline-desc">@step.Description</div>
+                                        <div class="timeline-date">
+                                            @if (step.Status == OrderStatus.Pending)
+                                            {
+                                                @Model.OrderDate.ToString("MMM dd, yyyy")
+                                            }
+                                            else if (step.Status == OrderStatus.Shipped && Model.ShippedDate.HasValue)
+                                            {
+                                                @Model.ShippedDate.Value.ToString("MMM dd, yyyy")
+                                            }
+                                            else if (step.Status == OrderStatus.Delivered && Model.DeliveredDate.HasValue)
+                                            {
+                                                @Model.DeliveredDate.Value.ToString("MMM dd, yyyy")
+                                            }
+                                            else
+                                            {
+                                                <span>&nbsp;</span>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                                </div>
+                            </div>
+                        }
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="rounded-3 bg-light p-3 h-100">
+                                    <h3 class="h6 text-uppercase text-muted fw-semibold mb-3">Order information</h3>
+                                    <div class="d-flex justify-content-between gap-3 mb-2">
+                                        <span class="text-muted">Placed</span>
+                                        <span class="text-end">@Model.OrderDate.ToString("MMM dd, yyyy HH:mm")</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between gap-3 mb-2">
+                                        <span class="text-muted">Payment method</span>
+                                        <span class="text-end">@Model.PaymentMethod</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between gap-3">
+                                        <span class="text-muted">Payment status</span>
+                                        <span class="text-end">@Model.PaymentStatus</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="rounded-3 bg-light p-3 h-100">
+                                    <h3 class="h6 text-uppercase text-muted fw-semibold mb-3">Shipping information</h3>
+                                    <div class="fw-semibold">@Model.CustomerFirstName @Model.CustomerLastName</div>
+                                    <div>@Model.ShippingAddress</div>
+                                    @if (!string.IsNullOrWhiteSpace(Model.ShippingAddress2))
+                                    {
+                                        <div>@Model.ShippingAddress2</div>
+                                    }
+                                    <div>@Model.ShippingCity@if (!string.IsNullOrWhiteSpace(Model.ShippingState)){<span>, @Model.ShippingState</span>} @Model.ShippingPostalCode</div>
+                                    <div>@Model.ShippingCountry</div>
+                                    @if (!string.IsNullOrWhiteSpace(Model.ShippingPhone))
+                                    {
+                                        <div class="text-muted mt-1">@Model.ShippingPhone</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="h6 text-uppercase text-muted fw-semibold mb-3">Order items</h3>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-end">Unit price</th>
+                                        <th class="text-end">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.OrderItems)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="fw-semibold">@(item.Product?.Name ?? $"Product #{item.ProductId}")</div>
+                                                @if (!string.IsNullOrWhiteSpace(item.Product?.Model))
+                                                {
+                                                    <small class="text-muted">@item.Product.Model</small>
+                                                }
+                                            </td>
+                                            <td class="text-center">@item.Quantity</td>
+                                            <td class="text-end">RS @item.UnitPrice.ToString("N2")</td>
+                                            <td class="text-end fw-semibold">RS @item.TotalPrice.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end">Subtotal</td>
+                                        <td class="text-end">RS @Model.Subtotal.ToString("N2")</td>
+                                    </tr>
+                                    @if (Model.DiscountAmount > 0)
+                                    {
+                                        <tr>
+                                            <td colspan="3" class="text-end text-success">Discount</td>
+                                            <td class="text-end text-success">− RS @Model.DiscountAmount.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td colspan="3" class="text-end">Tax</td>
+                                        <td class="text-end">RS @Model.TaxAmount.ToString("N2")</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-end">Shipping</td>
+                                        <td class="text-end">@(Model.ShippingCost == 0 ? "Free" : $"RS {Model.ShippingCost:N2}")</td>
+                                    </tr>
+                                    <tr class="table-primary fw-bold">
+                                        <td colspan="3" class="text-end">Total amount</td>
+                                        <td class="text-end">RS @Model.TotalAmount.ToString("N2")</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                        {
+                            <div class="alert alert-info mb-0 mt-3">
+                                <strong>Order notes:</strong> @Model.Notes
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

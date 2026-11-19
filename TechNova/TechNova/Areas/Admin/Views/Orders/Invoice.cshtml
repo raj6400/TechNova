@@ -1,0 +1,130 @@
+@model Order
+@using TechNova.Models
+@{
+    ViewData["Title"] = "Invoice";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice - @Model.OrderNumber</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body { background: #f3f6fa; padding: 24px; }
+        .invoice-container { max-width: 900px; margin: 0 auto; background: #fff; padding: 40px; box-shadow: 0 0 20px rgba(20, 36, 58, .12); }
+        .invoice-header { border-bottom: 2px solid #12b8a6; padding-bottom: 24px; margin-bottom: 28px; }
+        .brand { color: #14243a; letter-spacing: .08em; }
+        .table thead th { background: #f3f6fa; }
+        .total-row { background: #14243a; color: #fff; }
+        @@media print {
+            body { background: #fff; padding: 0; }
+            .invoice-container { max-width: none; padding: 16px; box-shadow: none; }
+            .no-print { display: none !important; }
+            .table thead th, .total-row { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <main class="invoice-container">
+        <div class="no-print mb-4 d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-primary" onclick="window.print()">Print invoice</button>
+            <a asp-area="Admin" asp-controller="Orders" asp-action="InvoicePdf" asp-route-id="@Model.Id" class="btn btn-outline-primary">Download PDF</a>
+            <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="btn btn-outline-secondary">Back to orders</a>
+        </div>
+
+        <header class="invoice-header">
+            <div class="row align-items-start">
+                <div class="col-6">
+                    <h2 class="brand fw-bold">TechNova</h2>
+                    <p class="mb-1">Mobile and technology</p>
+                    <p class="mb-0">Customer support: @Model.CustomerEmail</p>
+                </div>
+                <div class="col-6 text-end">
+                    <h1 class="h2">INVOICE</h1>
+                    <p class="mb-1"><strong>Order #:</strong> @Model.OrderNumber</p>
+                    <p class="mb-1"><strong>Date:</strong> @Model.OrderDate.ToString("MMM dd, yyyy")</p>
+                    <p class="mb-0"><strong>Status:</strong> @Model.Status</p>
+                </div>
+            </div>
+        </header>
+
+        <section class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <h2 class="h6 text-uppercase text-muted">Bill to</h2>
+                <p class="fw-semibold mb-1">@Model.CustomerFirstName @Model.CustomerLastName</p>
+                <p class="mb-1">@Model.CustomerEmail</p>
+                @if (!string.IsNullOrWhiteSpace(Model.ShippingPhone))
+                {
+                    <p class="mb-0">@Model.ShippingPhone</p>
+                }
+            </div>
+            <div class="col-md-6 mb-3">
+                <h2 class="h6 text-uppercase text-muted">Ship to</h2>
+                <p class="fw-semibold mb-1">@Model.ShippingAddress</p>
+                @if (!string.IsNullOrWhiteSpace(Model.ShippingAddress2))
+                {
+                    <p class="mb-1">@Model.ShippingAddress2</p>
+                }
+                <p class="mb-1">@Model.ShippingCity@if (!string.IsNullOrWhiteSpace(Model.ShippingState)){<text>, @Model.ShippingState</text>} @Model.ShippingPostalCode</p>
+                <p class="mb-0">@Model.ShippingCountry</p>
+            </div>
+        </section>
+
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 50%;">Item description</th>
+                        <th class="text-center">Quantity</th>
+                        <th class="text-end">Unit price</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">@(item.Product?.Name ?? $"Product #{item.ProductId}")</div>
+                                @if (!string.IsNullOrWhiteSpace(item.Product?.Model))
+                                {
+                                    <small class="text-muted">@item.Product.Model</small>
+                                }
+                            </td>
+                            <td class="text-center">@item.Quantity</td>
+                            <td class="text-end">Rs @item.UnitPrice.ToString("N2")</td>
+                            <td class="text-end">Rs @item.TotalPrice.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr><td colspan="3" class="text-end"><strong>Subtotal</strong></td><td class="text-end">Rs @Model.Subtotal.ToString("N2")</td></tr>
+                    @if (Model.DiscountAmount > 0)
+                    {
+                        <tr><td colspan="3" class="text-end text-success"><strong>Discount</strong></td><td class="text-end text-success">− Rs @Model.DiscountAmount.ToString("N2")</td></tr>
+                    }
+                    <tr><td colspan="3" class="text-end"><strong>Tax</strong></td><td class="text-end">Rs @Model.TaxAmount.ToString("N2")</td></tr>
+                    <tr><td colspan="3" class="text-end"><strong>Shipping</strong></td><td class="text-end">Rs @Model.ShippingCost.ToString("N2")</td></tr>
+                    <tr class="total-row"><td colspan="3" class="text-end"><strong>Total amount</strong></td><td class="text-end"><strong>Rs @Model.TotalAmount.ToString("N2")</strong></td></tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <section class="mt-4">
+            <h2 class="h6 text-uppercase text-muted">Payment information</h2>
+            <p class="mb-1"><strong>Method:</strong> @Model.PaymentMethod</p>
+            <p class="mb-1"><strong>Status:</strong> @Model.PaymentStatus</p>
+            @if (!string.IsNullOrWhiteSpace(Model.TransactionId))
+            {
+                <p class="mb-0"><strong>Transaction ID:</strong> @Model.TransactionId</p>
+            }
+        </section>
+
+        <footer class="mt-5 pt-4 border-top text-center text-muted">
+            <p class="mb-0">Thank you for shopping with TechNova.</p>
+        </footer>
+    </main>
+</body>
+</html>

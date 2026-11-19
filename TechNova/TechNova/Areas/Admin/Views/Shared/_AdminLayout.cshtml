@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - TechNova Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="admin-shell">
+        <aside class="admin-sidebar">
+            <a class="admin-brand" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                <i class="bi bi-speedometer2"></i> TechNova Admin
+            </a>
+            <nav class="admin-navigation" aria-label="Admin navigation">
+                <a class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-grid-1x2"></i> Dashboard
+                </a>
+                <a class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Products" asp-action="Index">
+                    <i class="bi bi-phone"></i> Products
+                </a>
+                <a class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Categories" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Categories" asp-action="Index">
+                    <i class="bi bi-tags"></i> Categories
+                </a>
+                <a class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Brands" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Brands" asp-action="Index">
+                    <i class="bi bi-award"></i> Brands
+                </a>
+
+                <!-- NEW: Sliders -->
+                <a class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Sliders" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Sliders" asp-action="Index">
+                    <i class="bi bi-images"></i> Sliders
+                </a>
+
+                <a class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Orders" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Orders" asp-action="Index">
+                    <i class="bi bi-bag-check"></i> Orders
+                </a>
+                <a class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")"
+                   asp-area="Admin" asp-controller="Users" asp-action="Index">
+                    <i class="bi bi-people"></i> Users
+                </a>
+                <a class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" && ViewContext.RouteData.Values["action"]?.ToString() is "SalesReport" or "InventoryReport" or "TopProducts" ? "active" : "")"
+                   href="#reportsSubmenu" data-bs-toggle="collapse" aria-expanded="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" && ViewContext.RouteData.Values["action"]?.ToString() is "SalesReport" or "InventoryReport" or "TopProducts" ? "true" : "false")" aria-controls="reportsSubmenu">
+                    <i class="bi bi-graph-up"></i> Reports <i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <div class="collapse @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" && ViewContext.RouteData.Values["action"]?.ToString() is "SalesReport" or "InventoryReport" or "TopProducts" ? "show" : "")" id="reportsSubmenu">
+                    <a class="ps-5" asp-area="Admin" asp-controller="Dashboard" asp-action="SalesReport">Sales report</a>
+                    <a class="ps-5" asp-area="Admin" asp-controller="Dashboard" asp-action="InventoryReport">Inventory report</a>
+                    <a class="ps-5" asp-area="Admin" asp-controller="Dashboard" asp-action="TopProducts">Top products</a>
+                </div>
+            </nav>
+            <div class="admin-sidebar-footer">
+                <a class="btn btn-outline-light btn-sm w-100 mb-2" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-shop"></i> View store
+                </a>
+                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+                    <button class="btn btn-outline-light btn-sm w-100" type="submit">
+                        <i class="bi bi-box-arrow-right"></i> Sign out
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="admin-content">
+            <header class="admin-topbar">
+                <span class="text-muted">Administration</span>
+                <span><i class="bi bi-person-circle me-1"></i>@User.Identity?.Name</span>
+            </header>
+            <div class="container-fluid admin-page">
+                @if (TempData["Success"] is string successMessage)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        @successMessage
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["Error"] is string errorMessage)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @errorMessage
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

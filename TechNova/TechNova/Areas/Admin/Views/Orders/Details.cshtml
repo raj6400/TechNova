@@ -1,0 +1,211 @@
+@model TechNova.Models.Order
+@using TechNova.Models
+@{
+    ViewData["Title"] = $"Order {Model.OrderNumber}";
+}
+
+@if (TempData["Success"] is string successMessage)
+{
+    <div class="alert alert-success" role="alert">@successMessage</div>
+}
+@if (TempData["Error"] is string errorMessage)
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+@if (TempData["Warning"] is string warningMessage)
+{
+    <div class="alert alert-warning" role="alert">@warningMessage</div>
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <h1 class="h3 mb-0"><i class="bi bi-receipt me-2"></i>Order @Model.OrderNumber</h1>
+    <div class="d-flex gap-2">
+        <a asp-area="Admin" asp-action="Invoice" asp-route-id="@Model.Id" class="btn btn-info" target="_blank" rel="noopener">
+            <i class="bi bi-printer me-1"></i>Print Invoice
+        </a>
+        <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <section class="card dashboard-card mb-4">
+            <div class="card-header"><h2 class="h5 mb-0">Order Items</h2></div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th class="text-center">Quantity</th>
+                                <th class="text-end">Unit Price</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if (!string.IsNullOrWhiteSpace(item.Product?.MainImageUrl))
+                                            {
+                                                <img src="@item.Product.MainImageUrl" alt="@item.Product.Name" class="rounded me-3" style="width:50px;height:50px;object-fit:cover" />
+                                            }
+                                            else
+                                            {
+                                                <div class="rounded bg-light d-flex align-items-center justify-content-center me-3 text-muted" style="width:50px;height:50px" aria-label="No product image">
+                                                    <i class="bi bi-image"></i>
+                                                </div>
+                                            }
+                                            <div>
+                                                <h3 class="h6 mb-0">@(item.Product?.Name ?? $"Product #{item.ProductId}")</h3>
+                                                @if (!string.IsNullOrWhiteSpace(item.Product?.Model))
+                                                {
+                                                    <small class="text-muted">@item.Product.Model</small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">@item.Quantity</td>
+                                    <td class="text-end">Rs @item.UnitPrice.ToString("N0")</td>
+                                    <td class="text-end">Rs @item.TotalPrice.ToString("N0")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr><td colspan="3" class="text-end"><strong>Subtotal:</strong></td><td class="text-end">Rs @Model.Subtotal.ToString("N0")</td></tr>
+                            <tr><td colspan="3" class="text-end"><strong>Tax:</strong></td><td class="text-end">Rs @Model.TaxAmount.ToString("N0")</td></tr>
+                            <tr><td colspan="3" class="text-end"><strong>Shipping:</strong></td><td class="text-end">Rs @Model.ShippingCost.ToString("N0")</td></tr>
+                            @if (Model.DiscountAmount > 0)
+                            {
+                                <tr><td colspan="3" class="text-end"><strong>Discount:</strong></td><td class="text-end text-danger">− Rs @Model.DiscountAmount.ToString("N0")</td></tr>
+                            }
+                            <tr class="table-primary"><td colspan="3" class="text-end"><strong>Total:</strong></td><td class="text-end"><strong>Rs @Model.TotalAmount.ToString("N0")</strong></td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="card dashboard-card mb-4">
+            <div class="card-header"><h2 class="h5 mb-0">Update Status</h2></div>
+            <div class="card-body">
+                <form asp-area="Admin" asp-action="UpdateStatus" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">Order Status</label>
+                            <select id="status" name="status" class="form-select">
+                                @foreach (OrderStatus status in ViewBag.Statuses)
+                                {
+                                    <option value="@status" selected="@(Model.Status == status)">@status</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6 d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-arrow-clockwise me-1"></i>Update Status</button>
+                            @if (Model.Status is not OrderStatus.Cancelled and not OrderStatus.Delivered)
+                            {
+                                <button type="submit" form="cancelOrderForm" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this order?');">
+                                    <i class="bi bi-x-circle me-1"></i>Cancel Order
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </form>
+                <form id="cancelOrderForm" asp-area="Admin" asp-action="CancelOrder" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                </form>
+            </div>
+        </section>
+
+        <section class="card dashboard-card mb-4">
+            <div class="card-header bg-primary text-white"><h2 class="h5 mb-0">Order Tracking Overview</h2></div>
+            <div class="card-body">
+                <p><strong>Order Date:</strong> @Model.OrderDate.ToString("MMM dd, yyyy HH:mm")</p>
+                <p><strong>Order Status:</strong> <span class="badge bg-@GetStatusColor(Model.Status)">@Model.Status</span></p>
+                <p><strong>Payment Method:</strong> @Model.PaymentMethod</p>
+                <p class="mb-0">
+                    <strong>Payment Status:</strong>
+                    <span class="badge bg-@(Model.PaymentStatus == PaymentStatus.Paid ? "success" : Model.PaymentStatus is PaymentStatus.Failed or PaymentStatus.Refunded ? "danger" : "warning")">@Model.PaymentStatus</span>
+                    @if (Model.PaymentStatus == PaymentStatus.Pending && Model.PaymentMethod == PaymentMethod.CashOnDelivery)
+                    {
+                        <small class="text-muted d-block">Payment is expected on delivery.</small>
+                    }
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-lg-4">
+        <section class="card dashboard-card mb-4">
+            <div class="card-header"><h2 class="h5 mb-0">Order Information</h2></div>
+            <div class="card-body">
+                <p><strong>Order Number:</strong> @Model.OrderNumber</p>
+                <p><strong>Order Date:</strong> @Model.OrderDate.ToString("MMM dd, yyyy HH:mm")</p>
+                <p><strong>Status:</strong> <span class="badge bg-@GetStatusColor(Model.Status)">@Model.Status</span></p>
+                <p><strong>Payment Status:</strong> @Model.PaymentStatus</p>
+                <p><strong>Payment Method:</strong> @Model.PaymentMethod</p>
+                @if (!string.IsNullOrWhiteSpace(Model.TransactionId))
+                {
+                    <p class="mb-0"><strong>Transaction ID:</strong> @Model.TransactionId</p>
+                }
+            </div>
+        </section>
+
+        <section class="card dashboard-card mb-4">
+            <div class="card-header"><h2 class="h5 mb-0">Customer Information</h2></div>
+            <div class="card-body">
+                @if (Model.User != null)
+                {
+                    <p><strong>Name:</strong> @Model.User.FullName</p>
+                    <p><strong>Email:</strong> @Model.User.Email</p>
+                    <p class="mb-0"><strong>Phone:</strong> @(Model.User.PhoneNumber ?? "N/A")</p>
+                }
+                else
+                {
+                    <p><strong>Name:</strong> @Model.CustomerFirstName @Model.CustomerLastName</p>
+                    <p class="mb-0"><strong>Email:</strong> @Model.CustomerEmail</p>
+                }
+            </div>
+        </section>
+
+        <section class="card dashboard-card">
+            <div class="card-header"><h2 class="h5 mb-0">Shipping Address</h2></div>
+            <div class="card-body">
+                <p class="mb-1">@Model.ShippingAddress</p>
+                @if (!string.IsNullOrWhiteSpace(Model.ShippingAddress2))
+                {
+                    <p class="mb-1">@Model.ShippingAddress2</p>
+                }
+                <p class="mb-1">@Model.ShippingCity@if (!string.IsNullOrWhiteSpace(Model.ShippingState)){<text>, @Model.ShippingState</text>} @Model.ShippingPostalCode</p>
+                <p class="mb-1">@Model.ShippingCountry</p>
+                @if (!string.IsNullOrWhiteSpace(Model.ShippingPhone))
+                {
+                    <p class="mb-0"><strong>Phone:</strong> @Model.ShippingPhone</p>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.Notes))
+                {
+                    <hr />
+                    <p class="mb-0"><strong>Notes:</strong> @Model.Notes</p>
+                }
+            </div>
+        </section>
+    </div>
+</div>
+
+@functions {
+    string GetStatusColor(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "warning",
+        OrderStatus.Processing => "info",
+        OrderStatus.Shipped => "primary",
+        OrderStatus.Delivered => "success",
+        OrderStatus.Cancelled => "danger",
+        OrderStatus.Refunded => "secondary",
+        _ => "secondary"
+    };
+}

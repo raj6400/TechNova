@@ -1,0 +1,131 @@
+@using TechNova.ViewModels
+@model CompareProductsViewModel
+@{
+    ViewData["Title"] = "Compare Products";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold mb-1">Compare Products</h2>
+            <p class="text-muted mb-0">Compare specifications, pricing, ratings, and features.</p>
+        </div>
+        <a asp-controller="Products" asp-action="Index" class="btn btn-outline-primary text-nowrap">
+            <i class="bi bi-arrow-left"></i> Continue Shopping
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle compare-table mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" class="compare-feature-column">Feature</th>
+                        @foreach (var product in Model.Products)
+                        {
+                            <th scope="col" class="text-center">
+                                <div class="compare-product-heading">
+                                    <button type="button"
+                                            class="btn btn-outline-danger btn-sm compare-remove"
+                                            aria-label="Remove @product.Name from comparison"
+                                            onclick="removeCompareAndReload(@product.Id)">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id">
+                                        <img src="@(product.MainImageUrl ?? "/images/no-image.png")"
+                                             class="img-fluid rounded mb-3 compare-product-image"
+                                             alt="@product.Name" />
+                                    </a>
+                                    <h6 class="fw-bold">@product.Name</h6>
+                                    <p class="text-muted small mb-2">@product.Brand?.Name</p>
+                                    @if (product.AverageRating > 0)
+                                    {
+                                        <div class="text-warning mb-2" aria-label="Rated @product.AverageRating.ToString("F1") out of 5">
+                                            @for (var i = 1; i <= 5; i++)
+                                            {
+                                                if (i <= product.AverageRating)
+                                                {
+                                                    <i class="bi bi-star-fill"></i>
+                                                }
+                                                else if (i - 0.5 <= product.AverageRating)
+                                                {
+                                                    <i class="bi bi-star-half"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-star"></i>
+                                                }
+                                            }
+                                        </div>
+                                    }
+                                    <h5 class="text-primary fw-bold mb-3">₹ @product.SalePrice.ToString("N0")</h5>
+                                    <div class="d-grid gap-2">
+                                        <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post">
+                                            <input type="hidden" name="productId" value="@product.Id" />
+                                            <button type="submit" class="btn btn-primary btn-sm w-100" @(product.StockQuantity <= 0 ? "disabled" : "")>
+                                                <i class="bi bi-cart-plus"></i> Add to Cart
+                                            </button>
+                                        </form>
+                                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="btn btn-outline-secondary btn-sm">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row" class="compare-feature-column">Model</th>
+                        @foreach (var product in Model.Products)
+                        {
+                            <td>@(product.Model ?? "-")</td>
+                        }
+                    </tr>
+                    <tr>
+                        <th scope="row" class="compare-feature-column">Category</th>
+                        @foreach (var product in Model.Products)
+                        {
+                            <td>@(product.Category?.Name ?? "-")</td>
+                        }
+                    </tr>
+                    <tr>
+                        <th scope="row" class="compare-feature-column">Stock</th>
+                        @foreach (var product in Model.Products)
+                        {
+                            <td>
+                                @if (product.StockQuantity > 0)
+                                {
+                                    <span class="badge bg-success">In Stock</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Out of Stock</span>
+                                }
+                            </td>
+                        }
+                    </tr>
+                    <tr>
+                        <th scope="row" class="compare-feature-column">Short Description</th>
+                        @foreach (var product in Model.Products)
+                        {
+                            <td>@(product.ShortDescription ?? "-")</td>
+                        }
+                    </tr>
+                    @foreach (var specificationName in Model.SpecificationNames)
+                    {
+                        <tr>
+                            <th scope="row" class="compare-feature-column">@specificationName</th>
+                            @foreach (var product in Model.Products)
+                            {
+                                var specification = product.Specifications.FirstOrDefault(item => item.Name == specificationName);
+                                <td>@(specification?.Value ?? "-")</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

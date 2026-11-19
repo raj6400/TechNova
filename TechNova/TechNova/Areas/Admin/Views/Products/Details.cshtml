@@ -1,0 +1,43 @@
+@using TechNova.Models
+@model Product
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div><h3 class="mb-1"><i class="bi bi-phone"></i> Product Details</h3><p class="text-muted mb-0">Review or update every catalog detail from the admin panel.</p></div>
+    <div class="d-flex gap-2">
+        <a asp-area="Admin" asp-controller="Products" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary"><i class="bi bi-pencil-square"></i> Edit All Details</a>
+        <form asp-area="Admin" asp-controller="Products" asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this product?');">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Delete</button>
+        </form>
+        <a asp-area="Admin" asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm product-detail-image-card">
+            <img src="@(Model.MainImageUrl ?? "/images/products/placeholder.jpg")" alt="@Model.Name" class="card-img-top product-detail-image" />
+            <div class="card-body"><h4 class="h5">@Model.Name</h4><div class="text-muted">@Model.Model</div></div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4"><div class="card-header bg-white fw-semibold">Product information</div><div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Brand</dt><dd class="col-sm-8">@Model.Brand?.Name</dd>
+                <dt class="col-sm-4">Category</dt><dd class="col-sm-8">@Model.Category?.Name</dd>
+                <dt class="col-sm-4">Description</dt><dd class="col-sm-8">@(Model.Description ?? "—")</dd>
+                <dt class="col-sm-4">Short description</dt><dd class="col-sm-8">@(Model.ShortDescription ?? "—")</dd>
+            </dl>
+        </div></div>
+        <div class="card shadow-sm"><div class="card-header bg-white fw-semibold">Pricing and availability</div><div class="card-body"><div class="row g-3">
+            <div class="col-md-4"><div class="text-muted small">Original price</div><strong>₹@Model.OriginalPrice.ToString("N2")</strong></div>
+            <div class="col-md-4"><div class="text-muted small">Sale price</div><strong class="text-success">₹@Model.SalePrice.ToString("N2")</strong></div>
+            <div class="col-md-4"><div class="text-muted small">Stock</div><strong>@Model.StockQuantity</strong></div>
+            <div class="col-12"><span class="badge @(Model.IsActive ? "bg-success" : "bg-secondary")">@(Model.IsActive ? "Active" : "Inactive")</span>@if (Model.IsFeatured) { <span class="badge bg-warning text-dark ms-1">Featured</span> }@if (Model.IsNewArrival) { <span class="badge bg-info ms-1">New arrival</span> }@if (Model.IsBestseller) { <span class="badge bg-primary ms-1">Bestseller</span> }</div>
+        </div></div></div>
+    </div>
+</div>

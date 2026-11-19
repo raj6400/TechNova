@@ -1,0 +1,721 @@
+@using TechNova.Models
+@model Product
+
+@{
+    ViewData["Title"] = "Add Product";
+}
+
+<style>
+    .product-form-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+        .product-form-card .card-header {
+            background: #fff;
+            padding: 16px 20px;
+            font-weight: 600;
+        }
+
+        .product-form-card .card-body {
+            padding: 22px;
+        }
+
+    .image-upload-box {
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 25px;
+        text-align: center;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+        .image-upload-box:hover {
+            border-color: #0d6efd;
+            background: #f1f6ff;
+        }
+
+        .image-upload-box i {
+            font-size: 38px;
+            color: #64748b;
+        }
+
+    .image-preview {
+        max-width: 100%;
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 8px;
+        background: white;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+</style>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+
+    <div>
+        <h3 class="mb-1">
+            <i class="bi bi-plus-circle text-primary"></i>
+            Add Product
+        </h3>
+
+        <p class="text-muted mb-0">
+            Add a new product to your TechNova catalog.
+        </p>
+    </div>
+
+    <a asp-area="Admin"
+       asp-controller="Products"
+       asp-action="Index"
+       class="btn btn-outline-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+        Back to Products
+
+    </a>
+
+</div>
+
+<form id="createProductForm"
+      asp-area="Admin"
+      asp-controller="Products"
+      asp-action="Create"
+      method="post"
+      enctype="multipart/form-data">
+
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="All"
+         class="alert alert-danger"></div>
+
+    <div class="row g-4">
+
+        <!-- LEFT SIDE -->
+        <div class="col-lg-8">
+
+            <!-- PRODUCT INFORMATION -->
+            <div class="card shadow-sm product-form-card mb-4">
+
+                <div class="card-header">
+                    <i class="bi bi-box-seam me-2"></i>
+                    Product Information
+                </div>
+
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">
+                            Product Name
+                        </label>
+
+                        <input asp-for="Name"
+                               class="form-control"
+                               placeholder="Enter product name" />
+
+                        <span asp-validation-for="Name"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Model" class="form-label">
+                            Product Model
+                        </label>
+
+                        <input asp-for="Model"
+                               class="form-control"
+                               placeholder="Enter model number" />
+
+                        <span asp-validation-for="Model"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ShortDescription"
+                               class="form-label"></label>
+
+                        <input asp-for="ShortDescription"
+                               class="form-control"
+                               placeholder="Enter short description" />
+
+                        <span asp-validation-for="ShortDescription"
+                              class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description"
+                               class="form-label"></label>
+
+                        <textarea asp-for="Description"
+                                  class="form-control"
+                                  rows="5"
+                                  placeholder="Enter complete product description"></textarea>
+
+                        <span asp-validation-for="Description"
+                              class="text-danger"></span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- PRODUCT IMAGE -->
+            <div class="card shadow-sm product-form-card mb-4">
+
+                <div class="card-header">
+                    <i class="bi bi-image me-2"></i>
+                    Product Image
+                </div>
+
+                <div class="card-body">
+
+                    <label for="productImage" class="image-upload-box w-100">
+
+                        <i class="bi bi-cloud-arrow-up d-block mb-2"></i>
+
+                        <h6 class="mb-1">
+                            Choose Product Image
+                        </h6>
+
+                        <p class="text-muted small mb-0">
+                            Click here to browse your computer
+                        </p>
+
+                        <p class="text-muted small mb-0">
+                            JPG, JPEG, PNG or WEBP | Maximum 5 MB
+                        </p>
+
+                    </label>
+
+                    <input type="file"
+                           name="image"
+                           id="productImage"
+                           class="d-none"
+                           accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                    <div id="previewContainer"
+                         class="mt-4 text-center"
+                         style="display:none;">
+
+                        <h6 class="mb-3">Image Preview</h6>
+
+                        <img id="imagePreview"
+                             class="image-preview"
+                             alt="Product Preview" />
+
+                        <p id="imageName"
+                           class="text-muted small mt-2 mb-2"></p>
+
+                        <button type="button"
+                                id="removeImage"
+                                class="btn btn-sm btn-outline-danger">
+
+                            <i class="bi bi-trash"></i>
+                            Remove Image
+
+                        </button>
+
+                    </div>
+
+                    <div id="imageError"
+                         class="text-danger small mt-2">
+                        @Html.ValidationMessage("image")
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="col-lg-4">
+
+            <!-- CATEGORY AND PRICING -->
+            <div class="card shadow-sm product-form-card mb-4">
+
+                <div class="card-header">
+                    <i class="bi bi-tags me-2"></i>
+                    Category and Pricing
+                </div>
+
+                <div class="card-body">
+
+                    <div class="mb-3">
+
+                        <label asp-for="CategoryId"
+                               class="form-label">
+                            Category
+                        </label>
+
+                        <select asp-for="CategoryId"
+                                asp-items="ViewBag.Categories"
+                                class="form-select">
+
+                            <option value="">
+                                -- Select Category --
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="CategoryId"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label asp-for="BrandId"
+                               class="form-label">
+                            Brand
+                        </label>
+
+                        <select asp-for="BrandId"
+                                asp-items="ViewBag.Brands"
+                                class="form-select">
+
+                            <option value="">
+                                -- Select Brand --
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="BrandId"
+                              class="text-danger"></span>
+
+                    </div>
+
+                    <hr />
+
+                    <div class="row g-3">
+
+                        <div class="col-6">
+
+                            <label asp-for="OriginalPrice"
+                                   class="form-label">
+                                Original Price
+                            </label>
+
+                            <input asp-for="OriginalPrice"
+                                   type="number"
+                                   min="0"
+                                   step="0.01"
+                                   class="form-control"
+                                   placeholder="0.00" />
+
+                            <span asp-validation-for="OriginalPrice"
+                                  class="text-danger small"></span>
+
+                        </div>
+
+                        <div class="col-6">
+
+                            <label asp-for="SalePrice"
+                                   class="form-label">
+                                Sale Price
+                            </label>
+
+                            <input asp-for="SalePrice"
+                                   type="number"
+                                   min="0"
+                                   step="0.01"
+                                   class="form-control"
+                                   placeholder="0.00" />
+
+                            <span asp-validation-for="SalePrice"
+                                  class="text-danger small"></span>
+
+                        </div>
+
+                        <div class="col-12">
+
+                            <label asp-for="StockQuantity"
+                                   class="form-label">
+                                Stock Quantity
+                            </label>
+
+                            <input asp-for="StockQuantity"
+                                   type="number"
+                                   min="0"
+                                   class="form-control"
+                                   placeholder="Enter stock quantity" />
+
+                            <span asp-validation-for="StockQuantity"
+                                  class="text-danger"></span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- VISIBILITY -->
+            <div class="card shadow-sm product-form-card">
+
+                <div class="card-header">
+                    <i class="bi bi-eye me-2"></i>
+                    Product Visibility
+                </div>
+
+                <div class="card-body">
+
+                    <div class="form-check mb-3">
+
+                        <input asp-for="IsActive"
+                               class="form-check-input" />
+
+                        <label asp-for="IsActive"
+                               class="form-check-label">
+                            Active Product
+                        </label>
+
+                    </div>
+
+                    <div class="form-check mb-3">
+
+                        <input asp-for="IsFeatured"
+                               class="form-check-input" />
+
+                        <label asp-for="IsFeatured"
+                               class="form-check-label">
+                            Featured Product
+                        </label>
+
+                    </div>
+
+                    <div class="form-check mb-3">
+
+                        <input asp-for="IsNewArrival"
+                               class="form-check-input" />
+
+                        <label asp-for="IsNewArrival"
+                               class="form-check-label">
+                            New Arrival
+                        </label>
+
+                    </div>
+
+                    <div class="form-check">
+
+                        <input asp-for="IsBestseller"
+                               class="form-check-input" />
+
+                        <label asp-for="IsBestseller"
+                               class="form-check-label">
+                            Bestseller
+                        </label>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- INCLUDE SPECIFICATIONS PARTIAL -->
+    <div class="row g-4">
+        <partial name="_SpecificationsPartial" />
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="d-flex flex-wrap gap-2 mt-4">
+
+        <button type="submit" class="btn btn-primary px-4">
+
+            <i class="bi bi-check-circle me-1"></i>
+            Add Product
+
+        </button>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary px-4">
+            Cancel
+        </a>
+
+    </div>
+
+</form>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Temporary Specifications Memory Management Array Collection for Create Mode
+        let tempSpecifications = [];
+
+        /**
+         * Parses and injects a spec model configuration into the local tracking cache collection
+         */
+        function addTempSpecification() {
+            const group = document.getElementById('newSpecGroup').value.trim() || 'General';
+            const name = document.getElementById('newSpecName').value.trim();
+            const value = document.getElementById('newSpecValue').value.trim();
+
+            if (!name || !value) {
+                alert('Please enter both name and value!');
+                return;
+            }
+
+            const spec = {
+                id: Date.now(), // Generate a unique local timestamp footprint reference
+                groupName: group,
+                name: name,
+                value: value
+            };
+
+            tempSpecifications.push(spec);
+            renderTempSpecifications();
+
+            // Reset target text input forms and force focus state management backward
+            document.getElementById('newSpecName').value = '';
+            document.getElementById('newSpecValue').value = '';
+            document.getElementById('newSpecName').focus();
+        }
+
+        /**
+         * Quick-Add shortcut layout trigger configuration handler
+         */
+        function quickAddTemp(name, value, group) {
+            document.getElementById('newSpecGroup').value = group;
+            document.getElementById('newSpecName').value = name;
+            document.getElementById('newSpecValue').value = value;
+            addTempSpecification();
+        }
+
+        /**
+         * Filters out specific target reference points out of the tracking list collection arrays
+         */
+        function removeTempSpec(id) {
+            tempSpecifications = tempSpecifications.filter(s => s.id !== id);
+            renderTempSpecifications();
+        }
+
+        /**
+         * Compiles array state changes directly into rows and formats elements within the view layout
+         */
+        function renderTempSpecifications() {
+            const tbody = document.getElementById('tempSpecsBody');
+            const noSpecs = document.getElementById('noTempSpecs');
+            const badge = document.getElementById('specCountBadge');
+            const hiddenInput = document.getElementById('TempSpecifications');
+
+            tbody.innerHTML = '';
+
+            if (tempSpecifications.length === 0) {
+                noSpecs.classList.remove('d-none');
+                badge.textContent = '0 specs';
+                hiddenInput.value = '';
+            } else {
+                noSpecs.classList.add('d-none');
+                badge.textContent = `${tempSpecifications.length} spec${tempSpecifications.length > 1 ? 's' : ''}`;
+
+                // Process groupings sorting loops using built-in array object reducers
+                const grouped = tempSpecifications.reduce((acc, spec) => {
+                    acc[spec.groupName] = acc[spec.groupName] || [];
+                    acc[spec.groupName].push(spec);
+                    return acc;
+                }, {});
+
+                Object.keys(grouped).sort().forEach(group => {
+                    // Inject contextual header categorizations into row layout markup
+                    const groupRow = document.createElement('tr');
+                    groupRow.className = 'table-light';
+                    groupRow.innerHTML = `<td colspan="4" class="fw-bold text-uppercase small text-muted py-1">${group}</td>`;
+                    tbody.appendChild(groupRow);
+
+                    grouped[group].forEach(spec => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="text-muted small">${spec.groupName}</td>
+                            <td class="fw-bold">${spec.name}</td>
+                            <td>${spec.value}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeTempSpec(${spec.id})">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                });
+
+                // Keep form updates synchronized by serializing tracking lists into hidden input form elements
+                hiddenInput.value = JSON.stringify(tempSpecifications);
+            }
+        }
+
+        /**
+         * Form capture listener setup used to execute asynchronous data processing overrides
+         */
+        document.getElementById('createProductForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Suspend default browser post cycles
+
+            const originalPrice = parseFloat(document.querySelector('[name="OriginalPrice"]').value) || 0;
+            const salePrice = parseFloat(document.querySelector('[name="SalePrice"]').value) || 0;
+            const categoryId = document.querySelector('[name="CategoryId"]').value;
+            const brandId = document.querySelector('[name="BrandId"]').value;
+
+            // Execute relational baseline criteria evaluation logic
+            if (!categoryId) {
+                alert('Please select a Category!');
+                return false;
+            }
+
+            if (!brandId) {
+                alert('Please select a Brand!');
+                return false;
+            }
+
+            if (salePrice > originalPrice) {
+                alert('Sale price cannot be greater than original price!');
+                return false;
+            }
+
+            const formData = new FormData(this);
+
+            try {
+                // Submit main entity structures using asynchronous context pipelines
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                });
+
+                if (response.redirected) {
+                    // On success, extract product references and dispatch background transactional calls
+                    if (tempSpecifications.length > 0) {
+                        const productId = await getCreatedProductId();
+                        if (productId) {
+                            await addSpecificationsToProduct(productId);
+                        }
+                    }
+                    window.location.href = response.url; // Trigger standard destination view changes
+                } else {
+                    // Re-render server-side model verification rejections into document layouts
+                    const html = await response.text();
+                    document.open();
+                    document.write(html);
+                    document.close();
+                }
+            } catch (error) {
+                console.error('Error during fetch operation processing:', error);
+                this.submit(); // Gracefully roll back toward standard processing channels on system fault
+            }
+        });
+
+        /**
+         * Dispatches background worker calls to capture identity attributes from index states
+         */
+        async function getCreatedProductId() {
+            try {
+                const response = await fetch('/Admin/Products/GetLatestProductId');
+                const data = await response.json();
+                return data.id;
+            } catch (e) {
+                console.error('Failed fetching transactional trace identifier metrics:', e);
+                return null;
+            }
+        }
+
+        /**
+         * Resolves sequential relational item mapping procedures inside loop configurations
+         */
+        async function addSpecificationsToProduct(productId) {
+            for (const spec of tempSpecifications) {
+                try {
+                    const url = new URL('/Admin/Products/AddSpecification', window.location.origin);
+                    url.searchParams.append('productId', productId);
+                    url.searchParams.append('name', spec.name);
+                    url.searchParams.append('value', spec.value);
+                    if (spec.groupName && spec.groupName !== 'General') {
+                        url.searchParams.append('groupName', spec.groupName);
+                    }
+
+                    await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        }
+                    });
+                } catch (e) {
+                    console.error('Failed pushing specific entry down relational mapping tables:', spec, e);
+                }
+            }
+        }
+
+        // Image upload handling
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const input = document.getElementById('productImage');
+            const preview = document.getElementById('imagePreview');
+            const container = document.getElementById('previewContainer');
+            const imageName = document.getElementById('imageName');
+            const removeButton = document.getElementById('removeImage');
+            const error = document.getElementById('imageError');
+
+            let previewUrl = null;
+
+            input.addEventListener('change', function() {
+
+                const file = input.files[0];
+
+                error.textContent = '';
+
+                if (!file) return;
+
+                const allowedTypes = [
+                    'image/jpeg',
+                    'image/png',
+                    'image/webp'
+                ];
+
+                if (!allowedTypes.includes(file.type)) {
+                    error.textContent = 'Only JPG, PNG and WEBP images are allowed.';
+                    input.value = '';
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    error.textContent = 'Image size must be less than 5 MB.';
+                    input.value = '';
+                    return;
+                }
+
+                if (previewUrl) {
+                    URL.revokeObjectURL(previewUrl);
+                }
+
+                previewUrl = URL.createObjectURL(file);
+
+                preview.src = previewUrl;
+                imageName.textContent = file.name;
+                container.style.display = 'block';
+            });
+
+            removeButton.addEventListener('click', function() {
+
+                input.value = '';
+                preview.removeAttribute('src');
+
+                if (previewUrl) {
+                    URL.revokeObjectURL(previewUrl);
+                    previewUrl = null;
+                }
+
+                container.style.display = 'none';
+                error.textContent = '';
+            });
+
+        });
+    </script>
+}

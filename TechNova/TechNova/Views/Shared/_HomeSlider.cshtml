@@ -1,0 +1,240 @@
+﻿@model List<TechNova.Models.Slider>
+
+@if (Model != null && Model.Any())
+{
+    <div id="homeSlider"
+         class="carousel slide carousel-fade home-slider"
+         data-bs-ride="carousel"
+         data-bs-interval="4000"
+         data-bs-pause="false">
+
+        @if (Model.Count > 1)
+        {
+            <div class="carousel-indicators">
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    <button type="button"
+                            data-bs-target="#homeSlider"
+                            data-bs-slide-to="@i"
+                            class="@(i == 0 ? "active" : "")"
+                            aria-current="@(i == 0 ? "true" : "false")"
+                            aria-label="Slide @(i + 1)">
+                    </button>
+                }
+            </div>
+        }
+
+        <div class="carousel-inner">
+
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var s = Model[i];
+
+                <div class="carousel-item @(i == 0 ? "active" : "")">
+
+                    <img src="@s.ImagePath"
+                         class="d-block w-100 home-slider-img"
+                         alt="@(s.Title ?? "Slide " + (i + 1))" />
+
+                    @if (!string.IsNullOrWhiteSpace(s.Title)
+                         || !string.IsNullOrWhiteSpace(s.SubTitle)
+                         || !string.IsNullOrWhiteSpace(s.ButtonText))
+                    {
+                        <div class="home-slider-caption">
+
+                            <div class="container home-slider-content">
+
+                                @if (!string.IsNullOrWhiteSpace(s.Title))
+                                {
+                                    <h1 class="display-5 fw-bold">
+                                        @s.Title
+                                    </h1>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(s.SubTitle))
+                                {
+                                    <p class="lead mb-3">
+                                        @s.SubTitle
+                                    </p>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(s.ButtonText)
+                                     && !string.IsNullOrWhiteSpace(s.ButtonLink))
+                                {
+                                    <a href="@s.ButtonLink"
+                                       class="btn btn-primary btn-lg home-slider-btn">
+                                        @s.ButtonText
+                                    </a>
+                                }
+
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            }
+
+        </div>
+
+        @if (Model.Count > 1)
+        {
+            <button class="carousel-control-prev"
+                    type="button"
+                    data-bs-target="#homeSlider"
+                    data-bs-slide="prev">
+
+                <span class="carousel-control-prev-icon"
+                      aria-hidden="true"></span>
+
+                <span class="visually-hidden">Previous</span>
+            </button>
+
+            <button class="carousel-control-next"
+                    type="button"
+                    data-bs-target="#homeSlider"
+                    data-bs-slide="next">
+
+                <span class="carousel-control-next-icon"
+                      aria-hidden="true"></span>
+
+                <span class="visually-hidden">Next</span>
+            </button>
+        }
+
+    </div>
+}
+
+<style>
+
+    /* Main Slider */
+    .home-slider {
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        background: #111;
+    }
+
+    /* Desktop Slider Image - 90VH */
+    .home-slider-img {
+        display: block;
+        width: 100%;
+        height: 90vh;
+        min-height: 450px;
+        max-height: 900px;
+        object-fit: cover;
+        object-position: center center;
+    }
+
+    /* Caption Overlay */
+    .home-slider-caption {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        color: #fff;
+        background: linear-gradient( 90deg, rgba(0, 0, 0, .55) 0%, rgba(0, 0, 0, .15) 45%, rgba(0, 0, 0, 0) 75% );
+    }
+
+    /* Caption Content */
+    .home-slider-content {
+        position: relative;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+        .home-slider-content h1 {
+            max-width: 650px;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .home-slider-content .lead {
+            max-width: 550px;
+            color: #fff;
+        }
+
+    /* Shop Now Button - Bottom Right */
+    .home-slider-btn {
+        position: absolute;
+        right: 12px;
+        bottom: 45px;
+        padding: 12px 30px;
+        font-size: 17px;
+        font-weight: 600;
+        border-radius: 6px;
+        z-index: 5;
+        transition: all .3s ease;
+    }
+
+        .home-slider-btn:hover {
+            transform: translateY(-3px);
+        }
+
+    /* Slider Indicators */
+    .home-slider .carousel-indicators {
+        z-index: 10;
+    }
+
+    /* Previous / Next Buttons */
+    .home-slider .carousel-control-prev,
+    .home-slider .carousel-control-next {
+        width: 7%;
+        z-index: 8;
+    }
+
+    /* Tablet */
+    @@media (max-width: 768px) {
+
+        .home-slider-img {
+            height: 60vh;
+            min-height: 350px;
+            max-height: 600px;
+        }
+
+        .home-slider-content h1 {
+            font-size: 1.5rem;
+        }
+
+        .home-slider-content .lead {
+            font-size: .95rem;
+        }
+
+        .home-slider-btn {
+            right: 15px;
+            bottom: 30px;
+            padding: 9px 18px;
+            font-size: 14px;
+        }
+    }
+
+    /* Small Mobile */
+    @@media (max-width: 480px) {
+
+        .home-slider-img {
+            height: 50vh;
+            min-height: 280px;
+            max-height: 450px;
+        }
+
+        .home-slider-content h1 {
+            font-size: 1.25rem;
+        }
+
+        .home-slider-content .lead {
+            font-size: .85rem;
+        }
+
+        .home-slider-btn {
+            bottom: 25px;
+            right: 12px;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+    }
+
+</style>
