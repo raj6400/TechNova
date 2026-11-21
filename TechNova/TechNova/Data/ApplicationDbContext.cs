@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TechNova.Models;
@@ -23,6 +24,10 @@ namespace TechNova.Data
         public DbSet<WishlistItem> WishlistItems { get; set; }
 
         public DbSet<Slider> Sliders { get; set; }
+
+        // Contact Module
+        public DbSet<ContactInfo> ContactInfos { get; set; }
+        public DbSet<ContactMessage> ContactMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -93,4 +98,3 @@ namespace TechNova.Data
         }
     }
 }
-

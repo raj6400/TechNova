@@ -1,0 +1,29 @@
+﻿{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=technovadb;User=root;Password=;Port=3306"
+  },
+  "Stripe": {
+    "PublishableKey": "pk_test_51R6oJ3GazSv6HxWMzRIfQJldht8UzDXz6FXiNOxasTI0mV3nizN1yEFNI1VJ4jIMbJXQBTGLQ86XFVeYJi2QlHrT00cKInd5kj",
+    "SecretKey": ""
+  },
+  "Smtp": {
+    "Host": "smtp.gmail.com",
+    "Port": 587,
+    "FromName": "TechNova",
+    "Username": "",
+    "Password": ""
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+
+  {
+    "ConnectionStrings": {
+      "DefaultConnection": "Server=YOUR_SERVER;Database=TechNovaDB;Trusted_Connection=True;TrustServerCertificate=True;"
+    }
+  }
+}

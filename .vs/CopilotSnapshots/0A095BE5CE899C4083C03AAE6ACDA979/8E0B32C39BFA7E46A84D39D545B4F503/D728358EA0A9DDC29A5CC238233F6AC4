@@ -1,0 +1,174 @@
+﻿@model TechNova.Models.ContactMessage
+
+@{
+    ViewData["Title"] = "Delete Contact Message";
+}
+
+@section Styles {
+<style>
+    .delete-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .delete-header {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .delete-header h1 {
+        margin: 0 0 10px 0;
+    }
+
+    .delete-header p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .delete-content {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .delete-warning {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        color: #664d03;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .delete-warning i {
+        font-size: 1.3rem;
+        margin-right: 10px;
+    }
+
+    .message-preview {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        border-left: 4px solid #dc3545;
+    }
+
+    .preview-row {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+        align-items: center;
+    }
+
+    .preview-label {
+        font-weight: 600;
+        color: #666;
+    }
+
+    .preview-value {
+        color: #333;
+        word-break: break-word;
+    }
+
+    .preview-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #c82333;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+</style>
+}
+
+<div class="delete-container">
+    <div class="delete-header">
+        <h1><i class="bi bi-exclamation-triangle"></i> Delete Message</h1>
+        <p>This action cannot be undone</p>
+    </div>
+
+    <div class="delete-content">
+        <div class="delete-warning">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Are you sure you want to permanently delete this contact message? This action cannot be reversed.
+        </div>
+
+        <div class="message-preview">
+            <div class="preview-row">
+                <div class="preview-label">From:</div>
+                <div class="preview-value"><strong>@Model.Name</strong></div>
+            </div>
+            <div class="preview-row">
+                <div class="preview-label">Email:</div>
+                <div class="preview-value">@Model.Email</div>
+            </div>
+            <div class="preview-row">
+                <div class="preview-label">Phone:</div>
+                <div class="preview-value">@Model.PhoneNumber</div>
+            </div>
+            <div class="preview-row">
+                <div class="preview-label">Subject:</div>
+                <div class="preview-value">@(string.IsNullOrEmpty(Model.Subject) ? "-" : Model.Subject)</div>
+            </div>
+            <div class="preview-row">
+                <div class="preview-label">Received:</div>
+                <div class="preview-value">@Model.CreatedDate.ToString("MMMM dd, yyyy HH:mm:ss")</div>
+            </div>
+        </div>
+
+        <form asp-action="Delete" method="post">
+            @Html.HiddenFor(model => model.Id)
+            @Html.AntiForgeryToken()
+
+            <div class="action-buttons">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Yes, Delete Permanently
+                </button>
+                <a href="@Url.Action("Details", new { id = Model.Id })" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

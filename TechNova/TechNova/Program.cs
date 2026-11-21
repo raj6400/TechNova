@@ -16,19 +16,13 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+        QuestPDF.Settings.License =
+            QuestPDF.Infrastructure.LicenseType.Community;
 
-        // ==========================================
-        // 1. Add MVC Services
-        // ==========================================
-
+        // 1. MVC Services
         builder.Services.AddControllersWithViews();
 
-
-        // ==========================================
-        // 2. Database Context - MySQL
-        // ==========================================
-
+        // 2. MySQL Database Configuration
         var connectionString =
             builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -45,17 +39,11 @@ internal class Program
                 ServerVersion.AutoDetect(connectionString)
             )
             .ConfigureWarnings(w =>
-                w.Log(
-                    RelationalEventId.PendingModelChangesWarning
-                )
+                w.Log(RelationalEventId.PendingModelChangesWarning)
             )
         );
 
-
-        // ==========================================
-        // 3. ASP.NET Core Identity
-        // ==========================================
-
+        // 3. Identity
         builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         {
             options.Password.RequireDigit = true;
@@ -65,120 +53,60 @@ internal class Program
             options.Password.RequiredLength = 6;
 
             options.User.RequireUniqueEmail = true;
-
             options.SignIn.RequireConfirmedEmail = false;
         })
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
 
-
-        // ==========================================
-        // 4. Authorization Policies
-        // ==========================================
-
+        // 4. Authorization
         builder.Services.AddAuthorization(options =>
         {
-            options.AddPolicy(
-                "AdminOnly",
-                policy => policy.RequireRole("Admin")
-            );
+            options.AddPolicy("AdminOnly",
+                policy => policy.RequireRole("Admin"));
 
-            options.AddPolicy(
-                "CustomerOnly",
-                policy => policy.RequireRole("Customer")
-            );
+            options.AddPolicy("CustomerOnly",
+                policy => policy.RequireRole("Customer"));
         });
 
-
-        // ==========================================
-        // 5. HTTP Context Accessor
-        // ==========================================
-
+        // 5. HTTP Context
         builder.Services.AddHttpContextAccessor();
 
-
-        // ==========================================
-        // 6. Session Configuration
-        // ==========================================
-
+        // 6. Session
         builder.Services.AddDistributedMemoryCache();
 
         builder.Services.AddSession(options =>
         {
             options.IdleTimeout = TimeSpan.FromMinutes(30);
-
             options.Cookie.HttpOnly = true;
-
             options.Cookie.IsEssential = true;
-
             options.Cookie.Name = ".TechNova.Session";
         });
 
-
-        // ==========================================
-        // 7. Shopping Cart Service
-        // ==========================================
-
-        builder.Services.AddScoped<
-            IShoppingCartService,
-            ShoppingCartService
-        >();
-
-        builder.Services.AddScoped<
-            IOrderService,
-            OrderService
-        >();
-
-        builder.Services.AddScoped<
-            IOrderInvoicePdfService,
-            OrderInvoicePdfService
-        >();
-
+        // 7. Shopping Cart and Order Services
+        builder.Services.AddScoped<IShoppingCartService, ShoppingCartService>();
+        builder.Services.AddScoped<IOrderService, OrderService>();
+        builder.Services.AddScoped<IOrderInvoicePdfService, OrderInvoicePdfService>();
         builder.Services.AddScoped<IReportService, ReportService>();
 
-
-        // ==========================================
         // 8. Product Service
-        // ==========================================
+        builder.Services.AddScoped<IProductService, ProductService>();
 
-        builder.Services.AddScoped<
-            IProductService,
-            ProductService
-        >();
-
-
-        // ==========================================
         // 9. File Service
-        // ==========================================
-
         builder.Services.AddScoped<FileService>();
 
-        // Email delivery for account recovery
+        // 10. Email Service
         builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
 
-
-        // ==========================================
-        // 10. AutoMapper
-        // ==========================================
-
+        // 11. AutoMapper
         builder.Services.AddAutoMapper(typeof(Program));
 
-
-        // ==========================================
-        // 11. Build Application
-        // ==========================================
-
+        // 12. Build Application
         var app = builder.Build();
 
-
-        // ==========================================
-        // 12. HTTP Request Pipeline
-        // ==========================================
-
+        // 13. Middleware
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Home/Error");
-
             app.UseHsts();
         }
 
@@ -188,20 +116,13 @@ internal class Program
 
         app.UseRouting();
 
-        // Session middleware
         app.UseSession();
 
-        // Authentication
         app.UseAuthentication();
 
-        // Authorization
         app.UseAuthorization();
 
-
-        // ==========================================
-        // 13. Seed Database
-        // ==========================================
-
+        // 14. Seed Database
         using (var scope = app.Services.CreateScope())
         {
             var services = scope.ServiceProvider;
@@ -209,11 +130,7 @@ internal class Program
             await DbInitializer.SeedAsync(services);
         }
 
-
-        // ==========================================
-        // 14. Default Routing
-        // ==========================================
-
+        // 15. Routing
         app.MapControllerRoute(
             name: "areas",
             pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}"
@@ -224,11 +141,7 @@ internal class Program
             pattern: "{controller=Home}/{action=Index}/{id?}"
         );
 
-
-        // ==========================================
-        // 15. Run Application
-        // ==========================================
-
+        // 16. Run Application
         await app.RunAsync();
     }
 }

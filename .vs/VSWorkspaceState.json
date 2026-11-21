@@ -3,12 +3,15 @@
     "",
     "\\TechNova",
     "\\TechNova\\TechNova",
-    "\\TechNova\\TechNova\\Controllers",
-    "\\TechNova\\TechNova\\Services",
+    "\\TechNova\\TechNova\\Areas",
+    "\\TechNova\\TechNova\\Areas\\Admin",
+    "\\TechNova\\TechNova\\Areas\\Admin\\Controllers",
+    "\\TechNova\\TechNova\\Areas\\Admin\\Views",
+    "\\TechNova\\TechNova\\Areas\\Admin\\Views\\Products",
     "\\TechNova\\TechNova\\Views",
     "\\TechNova\\TechNova\\Views\\Account",
     "\\TechNova\\TechNova\\Views\\Shared"
   ],
-  "SelectedNode": "\\TechNova\\TechNova\\Views\\Shared\\_HomeSlider.cshtml",
+  "SelectedNode": "\\TechNova\\TechNova\\Areas\\Admin\\Controllers\\ContactAdminController.cs",
   "PreviewInSolutionExplorer": false
 }

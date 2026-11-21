@@ -456,6 +456,100 @@ namespace TechNova.Migrations
                         });
                 });
 
+            modelBuilder.Entity("TechNova.Models.ContactInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Facebook")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Instagram")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("LinkedIn")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("MapAddress")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Twitter")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("WhatsApp")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("WorkingHours")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ContactInfos");
+                });
+
+            modelBuilder.Entity("TechNova.Models.ContactMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ContactMessages");
+                });
+
             modelBuilder.Entity("TechNova.Models.Order", b =>
                 {
                     b.Property<int>("Id")

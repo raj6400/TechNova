@@ -1,0 +1,275 @@
+﻿@model TechNova.Models.ContactMessage
+
+@{
+    ViewData["Title"] = "Edit Contact Message";
+}
+
+@section Styles {
+<style>
+    .edit-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .edit-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+
+    .edit-header h1 {
+        margin: 0;
+    }
+
+    .edit-form {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #333;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .form-control, textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.95rem;
+        font-family: inherit;
+    }
+
+    .form-control:focus, textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .info-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        border-left: 4px solid #667eea;
+    }
+
+    .info-row {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 15px;
+        margin-bottom: 10px;
+        align-items: center;
+    }
+
+    .info-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #666;
+    }
+
+    .info-value {
+        color: #333;
+        word-break: break-word;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .status-new {
+        background: #cfe2ff;
+        color: #084298;
+    }
+
+    .status-read {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .status-in-progress {
+        background: #fff3cd;
+        color: #664d03;
+    }
+
+    .status-resolved {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-closed {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background: #667eea;
+        color: white;
+        flex: 1;
+    }
+
+    .btn-primary:hover {
+        background: #5568d3;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+
+    .form-section-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #333;
+        margin-top: 25px;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    @media (max-width: 768px) {
+        .edit-form {
+            padding: 20px;
+        }
+
+        .info-row {
+            grid-template-columns: 1fr;
+            gap: 5px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            flex: none;
+        }
+    }
+</style>
+
+<div class="edit-container">
+    <div class="edit-header">
+        <h1><i class="bi bi-pencil-square"></i> Edit Contact Message</h1>
+    </div>
+
+    <div class="edit-form">
+        <!-- Message Info Section -->
+        <div class="info-section">
+            <div class="info-row">
+                <div class="info-label">From:</div>
+                <div class="info-value">
+                    <strong>@Model.Name</strong> 
+                    <span style="color: #999;">(@Model.Email)</span>
+                </div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Phone:</div>
+                <div class="info-value">@Model.PhoneNumber</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Subject:</div>
+                <div class="info-value">@(string.IsNullOrEmpty(Model.Subject) ? "-" : Model.Subject)</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Received:</div>
+                <div class="info-value">@Model.CreatedDate.ToString("MMMM dd, yyyy HH:mm:ss")</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Message:</div>
+                <div class="info-value" style="white-space: pre-wrap;">@Model.Message</div>
+            </div>
+        </div>
+
+        <!-- Edit Form -->
+        <form asp-action="Edit" method="post" id="editForm" novalidate>
+            @Html.HiddenFor(model => model.Id)
+            @Html.AntiForgeryToken()
+
+            <div class="form-section-title">Update Status & Notes</div>
+
+            <div class="form-group">
+                <label asp-for="Status">Message Status *</label>
+                <select asp-for="Status" class="form-control" required>
+                    <option value="New">New</option>
+                    <option value="Read">Read</option>
+                    <option value="InProgress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Closed">Closed</option>
+                </select>
+                <span asp-validation-for="Status" style="color: #dc3545; font-size: 0.85rem;"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="AdminNotes">Admin Notes</label>
+                <textarea asp-for="AdminNotes" placeholder="Add your notes about this contact message (internal use only)..."></textarea>
+                <small style="color: #666; margin-top: 5px; display: block;">These notes are for internal team reference only.</small>
+            </div>
+
+            <div class="action-buttons">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Save Changes
+                </button>
+                <a href="@Url.Action("Details", new { id = Model.Id })" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
