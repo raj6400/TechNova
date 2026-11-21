@@ -39,15 +39,18 @@
 ## 📸 Screenshots
 
 ### Home Page - Featured Slider
-![TechNova Home Page](./screenshots/home-page.png)
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/766dbc13-24fd-4796-a8ff-77617da60e84" />
+
 *Homepage with promotional slider showcasing latest smartphone models*
 
 ### Products Listing Page
-![Products Catalog](./screenshots/products-page.png)
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/a0cf135c-074d-4d56-97ce-00ed13982626" />
+
 *Advanced product filtering and browsing with search functionality*
 
 ### Admin Dashboard
-![Admin Dashboard](./screenshots/admin-dashboard.png)
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7fc9601d-fffa-400e-93fe-8a79064762aa" />
+
 *Comprehensive admin panel with sales analytics and performance metrics*
 
 ---
