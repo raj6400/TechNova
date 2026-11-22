@@ -4,7 +4,7 @@
 ![.NET Version](https://img.shields.io/badge/.NET-9.0-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-**TechNova** is a modern, full-featured e-commerce platform built with **ASP.NET Core MVC** and **.NET 9** that specializes in smartphones and latest technology products. It provides a seamless shopping experience for customers and comprehensive management tools for administrators.
+**TechNova** is modern, full-featured e-commerce platform built with **ASP.NET Core MVC** and **.NET 9** that specializes in smartphones and latest technology products. It provides a seamless shopping experience for customers and comprehensive management tools for administrators.
 
 ---
 
