@@ -12,7 +12,7 @@ namespace TechNova.Controllers
         private readonly IProductService _productService;
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
-
+        
         public HomeController(
             IProductService productService,
             ILogger<HomeController> logger,
